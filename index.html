@@ -174,6 +174,57 @@
   </div>
 </section>
 
+<!-- 강사 소개 — TODO: 내일 회사에서 본인 정보로 채우기 -->
+<section class="slide" id="instructor">
+  <div class="card">
+    <span class="chip chip-brand">강사 소개</span>
+    <h2 class="slide-h2 mt-3">함께할 강사를 소개합니다 👋</h2>
+
+    <div class="grid-cards mt-6" style="grid-template-columns:240px 1fr;gap:24px;">
+      <!-- 좌: 프로필 -->
+      <div class="tile-brand" style="text-align:center;padding:18px;">
+        <!-- TODO: 본인 사진으로 교체. 없으면 이모지 유지 -->
+        <div style="width:140px;height:140px;border-radius:50%;background:#fff;margin:0 auto;display:flex;align-items:center;justify-content:center;font-size:64px;">
+          🧑‍💻
+        </div>
+        <div class="font-bold text-lg mt-3">정유경</div>
+        <div class="small mt-1">NHN Cloud 파트너지원팀</div>
+        <div class="mono text-xs mt-2" style="color:#475569;">yk.j@nhn.com</div>
+      </div>
+
+      <!-- 우: 한 줄 소개 + 경력 + 현재 -->
+      <div>
+        <!-- TODO: 한 줄 소개 -->
+        <div class="quote" style="margin:0;">
+          "여기에 본인을 한 줄로 표현 — 예: 비개발자도 AI를 자기 비서처럼 쓸 수 있게 돕는 일을 합니다."
+        </div>
+
+        <!-- TODO: 경력·직무 -->
+        <div class="tile-soft mt-4">
+          <div class="font-bold">🏢 경력 / 현재 하는 일</div>
+          <ul class="text-sm mt-2 space-y-1 text-slate-700">
+            <li>• <b>현재</b>: NHN Cloud 파트너지원팀 / [담당 업무 1줄]</li>
+            <li>• <b>경력</b>: [몇 년차 / 주요 회사·역할 한 줄]</li>
+            <li>• <b>전문</b>: [AI 도구 활용 · 사내 교육 · 자동화 등 한 줄]</li>
+          </ul>
+        </div>
+
+        <!-- TODO: 왜 이 강의를 / 강의에서 약속하는 것 -->
+        <div class="tile-cyan mt-3">
+          <div class="font-bold">🎯 이 강의에서 약속드리는 것</div>
+          <div class="text-sm mt-2">"[강의가 끝나면 여러분은 ~할 수 있어요. 예: 코딩 한 줄 없이도 엑셀 분석·보고서·메일을 한국어로 자동화할 수 있습니다.]"</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TODO: 재미 요소 / 취미·캐릭터 (선택) -->
+    <div class="tile-amber mt-4">
+      <div class="font-bold text-sm">✨ 강사 한 줄 TMI (선택)</div>
+      <div class="text-sm mt-2">"[취미·관심사·재미있는 사실 1~2개. 예: 사이드 프로젝트로 송카드 메이커·고유스튜디오 운영 중 / 매일 새벽 1시까지 Claude Code랑 놀고 있어요 ㅋㅋ]"</div>
+    </div>
+  </div>
+</section>
+
 <!-- SLIDE 2: TOC -->
 <section class="slide" id="toc">
   <div class="card">
@@ -2349,7 +2400,7 @@ $ claude /doctor</div>
 
   // Part labels by section id prefix
   const partOf = (id) => {
-    if(['cover','toc','ta','materials'].includes(id)) return '인트로';
+    if(['cover','instructor','toc','ta','materials'].includes(id)) return '인트로';
     if(id.startsWith('part1')||['opening','ai-usage','needs-top5','live-demo','literacy-1','literacy-2','literacy-3','web-vs-code','which-claude','security-1','security-2','security-3'].includes(id)) return '1부 · Part 1 왜 Claude Code인가?';
     if(id.startsWith('part2')||['terminal','install','install-troubleshoot','first-login','first-chat'].includes(id)) return '1부 · Part 2 설치하기';
     if(id==='break') return '☕ 쉬는시간';
