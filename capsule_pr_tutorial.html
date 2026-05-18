@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>🎓 캡슐 PR 30초 시뮬레이션</title>
+<link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --gh-bg: #0d1117;
+    --gh-bg2: #161b22;
+    --gh-border: #30363d;
+    --gh-text: #e6edf3;
+    --gh-text-dim: #8b949e;
+    --gh-green: #2da44e;
+    --gh-green-hover: #2c974b;
+    --gh-blue: #2f81f7;
+    --gh-orange: #f59e0b;
+    --bg-page: #fafbfc;
+    --highlight: #ffd166;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100vh; overflow: hidden; }
+  body {
+    font-family: 'Pretendard', system-ui, sans-serif;
+    background: linear-gradient(135deg, #e0f2fe 0%, #fef3c7 50%, #fce7f3 100%);
+    display: flex; align-items: center; justify-content: center;
+    padding: 20px;
+  }
+
+  .wrap {
+    width: 100%;
+    max-width: 1100px;
+    height: calc(100vh - 40px);
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+    gap: 14px;
+  }
+
+  /* HEADER */
+  .header {
+    text-align: center;
+  }
+  .header h1 {
+    font-size: 22px;
+    font-weight: 800;
+    background: linear-gradient(90deg, #4f46e5, #06b6d4, #f59e0b);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 4px;
+  }
+  .header p { color: #475569; font-size: 13px; }
+
+  /* PROGRESS */
+  .progress {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    margin-top: 8px;
+  }
+  .progress-dot {
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    background: #e2e8f0;
+    color: #94a3b8;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 800;
+    font-size: 13px;
+    transition: all 0.3s;
+    border: 2px solid transparent;
+  }
+  .progress-dot.active {
+    background: #4f46e5;
+    color: #fff;
+    transform: scale(1.15);
+    box-shadow: 0 4px 12px rgba(79,70,229,0.4);
+  }
+  .progress-dot.done {
+    background: #10b981;
+    color: #fff;
+  }
+  .progress-line {
+    width: 30px; height: 3px;
+    background: #e2e8f0;
+    transition: background 0.3s;
+  }
+  .progress-line.done { background: #10b981; }
+
+  /* PROGRESS BAR (autoplay) */
+  .progress-bar-track {
+    width: 280px;
+    height: 4px;
+    background: #e2e8f0;
+    border-radius: 2px;
+    margin: 8px auto 0;
+    overflow: hidden;
+  }
+  .progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, #4f46e5, #06b6d4, #f59e0b);
+    border-radius: 2px;
+    width: 0%;
+  }
+  .progress-bar.fill {
+    animation: progressFill linear forwards;
+  }
+  @keyframes progressFill {
+    from { width: 0%; }
+    to { width: 100%; }
+  }
+
+  /* AUTOPLAY TOGGLE */
+  .autoplay-btn {
+    background: #fef3c7;
+    color: #92400e;
+    border: 1px solid #fcd34d;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+  .autoplay-btn:hover { background: #fde68a; }
+  .autoplay-btn.playing {
+    background: #dcfce7;
+    color: #166534;
+    border-color: #86efac;
+  }
+  .autoplay-badge {
+    position: fixed;
+    top: 16px; right: 16px;
+    background: #dcfce7;
+    color: #166534;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+    border: 1px solid #86efac;
+    box-shadow: 0 4px 12px rgba(22,101,52,0.2);
+    z-index: 20;
+    animation: badgePulse 2s infinite;
+  }
+  .autoplay-badge.hidden { display: none; }
+  @keyframes badgePulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.6; }
+  }
+
+  /* MAIN */
+  .main {
+    display: grid;
+    grid-template-columns: 1.6fr 1fr;
+    gap: 16px;
+    min-height: 0;
+  }
+
+  /* SIMULATION (GitHub UI 흉내) */
+  .sim {
+    background: var(--gh-bg);
+    color: var(--gh-text);
+    border-radius: 14px;
+    border: 1px solid var(--gh-border);
+    box-shadow: 0 20px 50px rgba(15, 23, 42, 0.25);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    position: relative;
+  }
+  .sim-topbar {
+    background: var(--gh-bg2);
+    border-bottom: 1px solid var(--gh-border);
+    padding: 9px 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 12px;
+  }
+  .sim-dots { display: flex; gap: 5px; }
+  .sim-dot { width: 10px; height: 10px; border-radius: 50%; }
+  .sim-dot.r { background: #ff5f56; }
+  .sim-dot.y { background: #ffbd2e; }
+  .sim-dot.g { background: #27c93f; }
+  .sim-url {
+    flex: 1;
+    background: var(--gh-bg);
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--gh-text-dim);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .sim-body {
+    flex: 1;
+    padding: 16px;
+    overflow-y: auto;
+    position: relative;
+  }
+  .sim-body::-webkit-scrollbar { width: 6px; }
+  .sim-body::-webkit-scrollbar-thumb { background: #30363d; border-radius: 3px; }
+
+  .gh-repo-header {
+    font-size: 14px;
+    color: var(--gh-text);
+    margin-bottom: 14px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--gh-border);
+  }
+  .gh-repo-header .owner { color: var(--gh-blue); }
+  .gh-repo-header .slash { color: var(--gh-text-dim); margin: 0 4px; }
+  .gh-repo-header .repo { font-weight: 700; color: var(--gh-blue); }
+
+  .gh-file-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: 6px;
+    font-size: 13px;
+    border-bottom: 1px solid var(--gh-border);
+    cursor: pointer;
+    transition: background 0.15s;
+    position: relative;
+  }
+  .gh-file-row:hover { background: rgba(255,255,255,0.05); }
+  .gh-file-row.target {
+    background: rgba(255, 209, 102, 0.08);
+    border: 1px solid var(--highlight);
+    border-radius: 6px;
+    animation: pulse 1.5s infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(255,209,102,0.5); }
+    50% { box-shadow: 0 0 0 8px rgba(255,209,102,0); }
+  }
+  .gh-icon { font-size: 16px; flex-shrink: 0; }
+
+  .gh-add-btn {
+    background: var(--gh-green);
+    color: #fff;
+    padding: 6px 14px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    border: 1px solid rgba(255,255,255,0.1);
+    position: relative;
+  }
+  .gh-add-btn.highlight {
+    animation: pulse 1.5s infinite;
+    box-shadow: 0 0 0 3px rgba(255,209,102,0.4);
+  }
+
+  .gh-dropdown {
+    background: var(--gh-bg2);
+    border: 1px solid var(--gh-border);
+    border-radius: 8px;
+    padding: 6px;
+    margin-top: 8px;
+    width: 240px;
+  }
+  .gh-dropdown-item {
+    padding: 8px 12px;
+    font-size: 13px;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .gh-dropdown-item:hover { background: rgba(255,255,255,0.05); }
+  .gh-dropdown-item.target {
+    background: rgba(255, 209, 102, 0.12);
+    color: var(--highlight);
+    font-weight: 600;
+  }
+
+  .gh-input {
+    width: 100%;
+    background: var(--gh-bg2);
+    border: 1px solid var(--gh-border);
+    color: var(--gh-text);
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    margin-bottom: 10px;
+  }
+  .gh-input.highlight { border-color: var(--highlight); box-shadow: 0 0 0 3px rgba(255,209,102,0.3); }
+
+  .gh-editor {
+    background: var(--gh-bg2);
+    border: 1px solid var(--gh-border);
+    border-radius: 6px;
+    padding: 12px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    line-height: 1.7;
+    min-height: 140px;
+  }
+  .typed {
+    color: var(--gh-text);
+  }
+  .cursor::after {
+    content: '▏';
+    color: var(--highlight);
+    animation: blink 0.8s infinite;
+  }
+  @keyframes blink {
+    0%, 50% { opacity: 1; }
+    51%, 100% { opacity: 0; }
+  }
+
+  .gh-commit-area {
+    background: var(--gh-bg2);
+    border: 1px solid var(--gh-border);
+    border-radius: 8px;
+    padding: 12px;
+    margin-top: 10px;
+  }
+  .gh-commit-buttons {
+    display: flex;
+    gap: 8px;
+    margin-top: 10px;
+  }
+  .gh-btn {
+    background: var(--gh-green);
+    color: #fff;
+    padding: 7px 14px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+  }
+  .gh-btn.highlight {
+    animation: pulse 1.5s infinite;
+    box-shadow: 0 0 0 3px rgba(255,209,102,0.4);
+  }
+  .gh-btn-secondary {
+    background: transparent;
+    color: var(--gh-text);
+    border: 1px solid var(--gh-border);
+  }
+
+  .complete-screen {
+    text-align: center;
+    padding: 40px 20px;
+  }
+  .complete-screen h2 {
+    font-size: 28px;
+    background: linear-gradient(90deg, #10b981, #06b6d4);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin: 14px 0 8px;
+  }
+  .pr-preview {
+    background: var(--gh-bg2);
+    border: 1px solid var(--gh-border);
+    border-radius: 8px;
+    padding: 16px;
+    margin-top: 20px;
+    text-align: left;
+    font-size: 12px;
+  }
+  .pr-status {
+    background: var(--gh-green);
+    color: #fff;
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+    display: inline-block;
+    margin-bottom: 8px;
+  }
+
+  /* SIDE INFO */
+  .info {
+    background: #fff;
+    border-radius: 14px;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 10px 30px rgba(15,23,42,0.08);
+    padding: 22px;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+  }
+  .info-step {
+    color: #4f46e5;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    margin-bottom: 6px;
+  }
+  .info h2 {
+    font-size: 22px;
+    font-weight: 800;
+    color: #0f172a;
+    margin-bottom: 8px;
+    line-height: 1.3;
+  }
+  .info p {
+    color: #475569;
+    font-size: 13px;
+    line-height: 1.6;
+    margin-bottom: 14px;
+  }
+  .info-tip {
+    background: #fef3c7;
+    border-left: 3px solid #f59e0b;
+    padding: 10px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    color: #92400e;
+    margin-top: auto;
+    line-height: 1.5;
+  }
+  .info-tip b { color: #78350f; }
+
+  /* CONTROLS */
+  .controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #fff;
+    border-radius: 12px;
+    padding: 12px 18px;
+    box-shadow: 0 6px 16px rgba(15,23,42,0.08);
+  }
+  .btn {
+    background: linear-gradient(135deg, #4f46e5, #7c3aed);
+    color: #fff;
+    border: none;
+    padding: 10px 22px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(79,70,229,0.3);
+    transition: all 0.2s;
+  }
+  .btn:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(79,70,229,0.4); }
+  .btn:disabled { opacity: 0.3; cursor: not-allowed; }
+  .btn-secondary {
+    background: #f1f5f9;
+    color: #475569;
+    box-shadow: none;
+  }
+  .btn-secondary:hover { background: #e2e8f0; }
+  .step-label {
+    font-size: 13px;
+    color: #64748b;
+    font-weight: 600;
+  }
+  .step-label b { color: #4f46e5; font-size: 16px; }
+
+  /* ARROW POINTER */
+  .pointer {
+    position: absolute;
+    font-size: 28px;
+    color: var(--highlight);
+    pointer-events: none;
+    animation: pointBounce 1s infinite;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.4);
+    z-index: 10;
+  }
+  @keyframes pointBounce {
+    0%, 100% { transform: translateX(0); }
+    50% { transform: translateX(-8px); }
+  }
+
+  @media (max-width: 900px) {
+    html, body { overflow: auto; height: auto; }
+    .wrap { height: auto; }
+    .main { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <!-- HEADER -->
+  <div class="header">
+    <h1>🎓 캡슐 PR 30초 시뮬레이션</h1>
+    <p>실제 GitHub 화면을 흉내낸 4단계 체험 — 미리 익혀두면 본 미션 1분 컷 ⚡</p>
+    <div class="progress">
+      <div class="progress-dot active" id="dot1">1</div>
+      <div class="progress-line" id="line1"></div>
+      <div class="progress-dot" id="dot2">2</div>
+      <div class="progress-line" id="line2"></div>
+      <div class="progress-dot" id="dot3">3</div>
+      <div class="progress-line" id="line3"></div>
+      <div class="progress-dot" id="dot4">4</div>
+      <div class="progress-line" id="line4"></div>
+      <div class="progress-dot" id="dot5">🎉</div>
+    </div>
+    <div class="progress-bar-track">
+      <div class="progress-bar" id="progressBar"></div>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main">
+
+    <!-- SIMULATION -->
+    <div class="sim">
+      <div class="sim-topbar">
+        <div class="sim-dots">
+          <div class="sim-dot r"></div>
+          <div class="sim-dot y"></div>
+          <div class="sim-dot g"></div>
+        </div>
+        <div class="sim-url" id="simUrl">github.com/ariri48/ai-capsule-workshop</div>
+      </div>
+      <div class="sim-body" id="simBody">
+        <!-- 동적 렌더링 -->
+      </div>
+    </div>
+
+    <!-- INFO -->
+    <div class="info">
+      <div class="info-step" id="infoStep">STEP 1 / 4</div>
+      <h2 id="infoTitle">두레이 메시지 링크 클릭</h2>
+      <p id="infoDesc">두레이방 메시지에서 단축 URL이나 QR을 클릭하면 이 페이지로 이동합니다. 파일들이 보이는 폴더 목록에서 <b>capsules</b> 폴더를 찾아 클릭하세요.</p>
+      <div class="info-tip" id="infoTip">
+        💡 <b>tip</b> — 노란색 강조 박스가 다음 클릭할 곳이에요. 강의장에선 마우스 호버하면 클릭 가능합니다.
+      </div>
+    </div>
+
+  </div>
+
+  <!-- CONTROLS -->
+  <div class="controls">
+    <button class="btn btn-secondary" id="prevBtn" onclick="prevStep()">← 이전</button>
+    <div style="display:flex;align-items:center;gap:14px;">
+      <button class="autoplay-btn playing" id="autoplayBtn" onclick="toggleAutoplay()">⏸️ 일시정지</button>
+      <div class="step-label">Step <b id="stepNum">1</b> / 4</div>
+    </div>
+    <button class="btn" id="nextBtn" onclick="nextStep()">다음 →</button>
+  </div>
+
+  <div class="autoplay-badge" id="autoplayBadge">🔄 자동재생 중</div>
+
+</div>
+
+<script>
+const STEPS = [
+  {
+    url: "github.com/ariri48/ai-capsule-workshop",
+    step: "STEP 1 / 4",
+    title: "📁 capsules 폴더 클릭",
+    desc: "두레이방 메시지의 단축 URL(cleanuri.com/18oWw7) 또는 QR 클릭 → 이 화면으로 이동합니다. 폴더 목록에서 <b>capsules</b>를 찾아 클릭하세요.",
+    tip: "💡 <b>tip</b> — capsules 폴더가 다른 사람들의 캡슐이 모이는 곳이에요.",
+    body: `
+      <div class="gh-repo-header">
+        <span class="owner">ariri48</span><span class="slash">/</span><span class="repo">ai-capsule-workshop</span>
+      </div>
+      <div class="gh-file-row target" onclick="nextStep()">
+        <span class="gh-icon">📁</span>
+        <span style="color: #2f81f7; font-weight: 600;">capsules</span>
+        <span style="margin-left: auto; color: var(--gh-text-dim); font-size: 12px;">📌 여기 클릭!</span>
+      </div>
+      <div class="gh-file-row">
+        <span class="gh-icon">📄</span>
+        <span>README.md</span>
+        <span style="margin-left: auto; color: var(--gh-text-dim); font-size: 11px;">5 minutes ago</span>
+      </div>
+    `
+  },
+  {
+    url: "github.com/ariri48/ai-capsule-workshop/tree/main/capsules",
+    step: "STEP 2 / 4",
+    title: "➕ Add file → Create new file",
+    desc: "capsules 폴더에 들어오면 우측 상단에 <b>초록색 Add file 버튼</b>이 보입니다. 클릭하면 메뉴가 펼쳐져요. <b>Create new file</b>을 선택하세요.",
+    tip: "💡 <b>tip</b> — 새 파일을 만드는 거예요. 본인 캡슐을 따로 만든다는 뜻.",
+    body: `
+      <div class="gh-repo-header">
+        <span class="owner">ariri48</span><span class="slash">/</span><span class="repo">ai-capsule-workshop</span><span class="slash">/</span><span style="color: var(--gh-text-dim);">capsules</span>
+      </div>
+      <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 14px;">
+        <div style="color: var(--gh-text-dim); font-size: 13px;">📁 capsules / 1 file</div>
+        <div style="position: relative;">
+          <div class="gh-add-btn highlight" onclick="nextStep()">
+            <span>➕</span> Add file <span style="opacity: 0.7;">▾</span>
+          </div>
+          <div class="gh-dropdown" style="position: absolute; right: 0; z-index: 5;">
+            <div class="gh-dropdown-item target" onclick="nextStep()">
+              <span>📄</span> Create new file
+            </div>
+            <div class="gh-dropdown-item">
+              <span>📤</span> Upload files
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="gh-file-row" style="opacity: 0.6;">
+        <span class="gh-icon">📄</span>
+        <span>_template.md</span>
+      </div>
+    `
+  },
+  {
+    url: "github.com/ariri48/ai-capsule-workshop/new/main/capsules",
+    step: "STEP 3 / 4",
+    title: "✏️ 파일명 + 양식 채우기",
+    desc: "파일명 칸에 <b>본인이름.md</b>를 입력하고, 아래 양식에 한 줄씩 채우세요. (실제론 빈 칸에 입력하지만 여기선 자동 입력 효과로 보여드려요)",
+    tip: "💡 <b>tip</b> — 한 줄이라도 OK! 빠르게 적으세요. 디테일은 안 중요해요.",
+    body: `
+      <div class="gh-repo-header">
+        <span style="color: var(--gh-text-dim);">capsules /</span>
+        <input type="text" class="gh-input highlight" value="정유경.md" readonly style="display: inline-block; width: auto; margin: 0 0 0 4px; vertical-align: middle;">
+      </div>
+      <div class="gh-editor" id="editor">
+        <span class="typed">이름: <b style="color:#fde047;">정유경</b></span><br/>
+        <span class="typed">부서: <b style="color:#fde047;">파트너지원팀</b></span><br/>
+        <br/>
+        <span class="typed">AI 사용 첫 성공담 (한 줄):</span><br/>
+        <span class="typed" style="color:#86efac;">Claude로 회의록 정리 시켰는데 진짜 잘하더라구요</span><br/>
+        <br/>
+        <span class="typed">강사·동료에게 한마디 (자유, 농담 OK):</span><br/>
+        <span class="typed" style="color:#86efac;">옆자리 ○○님 오늘 점심 사주세요 🙏</span><span class="cursor"></span>
+      </div>
+      <div style="margin-top: 12px; font-size: 12px; color: var(--gh-text-dim); text-align: center;">
+        ⌨️ 양식대로 한 줄씩 채우면 됩니다 (예시: 정유경 / 파트너지원팀)
+      </div>
+    `
+  },
+  {
+    url: "github.com/ariri48/ai-capsule-workshop/new/main/capsules",
+    step: "STEP 4 / 4",
+    title: "✅ 초록 버튼 두 번 = 끝!",
+    desc: "페이지 맨 아래로 스크롤 → <b>Commit changes</b>(초록 버튼) 클릭 → 다음 화면에서 <b>Propose changes / Create pull request</b> 한 번 더 클릭 = 완료!",
+    tip: "💡 <b>tip</b> — 초록 버튼이 두 개 연속 나와요. 둘 다 그냥 누르면 돼요.",
+    body: `
+      <div class="gh-editor" style="font-size: 11px; padding: 8px 12px; opacity: 0.6;">
+        <span class="typed">이름: 정유경 / 부서: 파트너지원팀</span><br/>
+        <span class="typed">...(작성한 내용)...</span>
+      </div>
+      <div class="gh-commit-area">
+        <div style="font-size: 13px; font-weight: 600; margin-bottom: 8px;">Commit changes</div>
+        <input type="text" class="gh-input" value="Create capsules/정유경.md" readonly style="margin-bottom: 6px;">
+        <div class="gh-commit-buttons">
+          <button class="gh-btn highlight" onclick="nextStep()">Commit changes</button>
+          <button class="gh-btn gh-btn-secondary">Cancel</button>
+        </div>
+        <div style="margin-top: 14px; padding-top: 14px; border-top: 1px dashed var(--gh-border); font-size: 12px; color: var(--gh-text-dim);">
+          📌 다음 화면에선 <b style="color: #fde047;">Create pull request</b> 초록 버튼 한 번 더 클릭하면 완료!
+        </div>
+      </div>
+    `
+  },
+  {
+    url: "github.com/ariri48/ai-capsule-workshop/pull/42",
+    step: "🎉 완료",
+    title: "축하해요! 캡슐 전송 완료 🎁",
+    desc: "본인 캡슐이 강사 레포에 등록됐어요. 2부 시작에 🎰 가챠 머신에서 본인 캡슐이 굴려지길 기대해주세요! 운명 미션 3종 중 하나에 당첨될 수 있습니다.",
+    tip: "🎊 <b>다음 단계</b> — 강의장에서 강사가 똑같은 4단계로 안내합니다. 이제 자신 있죠?",
+    body: `
+      <div class="complete-screen">
+        <div style="font-size: 80px;">🎁</div>
+        <h2>캡슐 전송 완료!</h2>
+        <p style="color: var(--gh-text-dim); margin: 6px 0 0; font-size: 13px;">PR #42 · 가챠 응모권 1매 획득</p>
+        <div class="pr-preview">
+          <div class="pr-status">✅ Open</div>
+          <div style="font-size: 14px; font-weight: 600; margin-bottom: 6px;">📦 Create capsules/정유경.md</div>
+          <div style="color: var(--gh-text-dim); font-size: 11px;">ariri48 wants to merge 1 commit into main</div>
+          <div style="margin-top: 10px; padding: 8px; background: rgba(45,164,78,0.1); border-radius: 4px; color: #86efac; font-size: 11px;">
+            🎰 이 캡슐은 2부 시작 가챠 추첨에 자동 등록됩니다
+          </div>
+        </div>
+      </div>
+    `
+  }
+];
+
+let current = 0;
+let autoplay = true;
+let autoTimer = null;
+const DURATIONS = [3000, 3500, 5000, 3500, 4000]; // 단계별 ms (1사이클 ≈ 19초)
+
+function startAutoTimer() {
+  clearTimeout(autoTimer);
+  const bar = document.getElementById("progressBar");
+  bar.classList.remove("fill");
+  void bar.offsetWidth; // reflow trick
+  if (!autoplay) return;
+  const duration = DURATIONS[current] || 5500;
+  bar.style.animationDuration = duration + "ms";
+  bar.classList.add("fill");
+  autoTimer = setTimeout(() => {
+    nextStep();
+  }, duration);
+}
+
+function toggleAutoplay() {
+  autoplay = !autoplay;
+  const btn = document.getElementById("autoplayBtn");
+  const badge = document.getElementById("autoplayBadge");
+  if (autoplay) {
+    btn.textContent = "⏸️ 일시정지";
+    btn.classList.add("playing");
+    badge.classList.remove("hidden");
+    startAutoTimer();
+  } else {
+    btn.textContent = "▶️ 자동재생";
+    btn.classList.remove("playing");
+    badge.classList.add("hidden");
+    clearTimeout(autoTimer);
+    document.getElementById("progressBar").classList.remove("fill");
+  }
+}
+
+function render() {
+  const s = STEPS[current];
+  document.getElementById("simUrl").textContent = s.url;
+  document.getElementById("simBody").innerHTML = s.body;
+  document.getElementById("infoStep").textContent = s.step;
+  document.getElementById("infoTitle").textContent = s.title;
+  document.getElementById("infoDesc").innerHTML = s.desc;
+  document.getElementById("infoTip").innerHTML = s.tip;
+  document.getElementById("stepNum").textContent = current === 4 ? "🎉" : (current + 1);
+
+  // progress
+  for (let i = 1; i <= 5; i++) {
+    const dot = document.getElementById("dot" + i);
+    dot.classList.remove("active", "done");
+    if (i - 1 < current) dot.classList.add("done");
+    else if (i - 1 === current) dot.classList.add("active");
+  }
+  for (let i = 1; i <= 4; i++) {
+    const line = document.getElementById("line" + i);
+    if (i <= current) line.classList.add("done");
+    else line.classList.remove("done");
+  }
+
+  // buttons
+  document.getElementById("prevBtn").disabled = current === 0;
+  const nextBtn = document.getElementById("nextBtn");
+  if (current === STEPS.length - 1) {
+    nextBtn.textContent = "🔄 처음부터 다시";
+  } else {
+    nextBtn.textContent = "다음 →";
+  }
+}
+
+function nextStep() {
+  if (current === STEPS.length - 1) {
+    current = 0;
+  } else {
+    current++;
+  }
+  render();
+  startAutoTimer();
+}
+
+function prevStep() {
+  if (current > 0) {
+    current--;
+    render();
+    startAutoTimer();
+  }
+}
+
+document.addEventListener("keydown", (e) => {
+  if (e.key === "ArrowRight" || e.key === " ") { e.preventDefault(); nextStep(); }
+  if (e.key === "ArrowLeft") prevStep();
+  if (e.key === "p" || e.key === "P") toggleAutoplay();
+});
+
+render();
+startAutoTimer(); // 페이지 로드 즉시 자동재생 시작
+</script>
+
+</body>
+</html>
