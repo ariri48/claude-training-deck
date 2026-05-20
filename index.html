@@ -6,7 +6,7 @@
 <title>Claude Code 비개발자 교육 (v2) · 2026.05.19</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&family=Nanum+Gothic:wght@400;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.tailwindcss.com"></script>
 <style>
   :root{
@@ -2847,9 +2847,77 @@ $ claude /doctor</div>
   </div>
 </section>
 
+<!-- Claude Code로 PPTX 만들기 -->
+<section class="slide" id="pptx-guide">
+  <div class="card">
+    <span class="chip chip-brand">FAQ</span>
+    <h2 class="slide-h2 mt-3">Claude Code로 <span style="color:var(--brand);">PPTX</span> 만들 수 있나요?</h2>
+    <p class="lead mt-2">네! python-pptx 라이브러리로 코드 한 줄 안 쓰고 발표자료를 만들 수 있어요.</p>
+
+    <div class="grid-cards gc-2 mt-6">
+      <!-- 방법 1 -->
+      <div class="tile-brand">
+        <div class="flex items-center gap-2 mb-3"><span class="num">1</span><span class="font-bold">직접 생성 (추천)</span></div>
+        <div class="pre" style="font-size:13px;line-height:1.8;">
+<span class="c"># Claude Code에 이렇게 말해보세요</span>
+
+<span class="s">"NHN Cloud 파트너 현황을 정리한
+5장짜리 발표자료 pptx로 만들어줘.
+데이터는 partners.xlsx에서 가져와."</span>
+
+<span class="c"># Claude가 알아서:</span>
+<span class="k">1.</span> python-pptx 설치
+<span class="k">2.</span> 엑셀 데이터 읽기
+<span class="k">3.</span> 슬라이드 5장 구성
+<span class="k">4.</span> .pptx 파일 저장</div>
+      </div>
+
+      <!-- 방법 2 -->
+      <div class="tile-cyan">
+        <div class="flex items-center gap-2 mb-3"><span class="num">2</span><span class="font-bold">템플릿 기반</span></div>
+        <div class="pre" style="font-size:13px;line-height:1.8;">
+<span class="c"># 기존 PPT 템플릿이 있다면</span>
+
+<span class="s">"template.pptx를 기반으로
+3월 매출 데이터를 업데이트해서
+새 pptx로 저장해줘."</span>
+
+<span class="c"># 기존 디자인 유지하면서</span>
+<span class="c"># 데이터만 갈아끼우기 가능!</span>
+
+<span class="c"># 회사 로고, 배경, 폰트 등</span>
+<span class="c"># 템플릿 그대로 유지됩니다</span></div>
+      </div>
+    </div>
+
+    <div class="grid-cards gc-3 mt-4">
+      <div class="tile-soft" style="text-align:center;">
+        <div style="font-size:28px;">📊</div>
+        <div class="font-bold mt-2">차트 삽입</div>
+        <div class="small mt-1">막대/원형/꺾은선 차트를<br>슬라이드에 바로 삽입</div>
+      </div>
+      <div class="tile-soft" style="text-align:center;">
+        <div style="font-size:28px;">🖼️</div>
+        <div class="font-bold mt-2">이미지 배치</div>
+        <div class="small mt-1">로고, 스크린샷 등<br>원하는 위치에 자동 배치</div>
+      </div>
+      <div class="tile-soft" style="text-align:center;">
+        <div style="font-size:28px;">📋</div>
+        <div class="font-bold mt-2">표 자동 생성</div>
+        <div class="small mt-1">엑셀/CSV 데이터를<br>깔끔한 표로 변환</div>
+      </div>
+    </div>
+
+    <div class="tile-amber mt-4">
+      <div class="font-bold text-sm">💡 Tip</div>
+      <div class="text-sm mt-1">복잡한 디자인이 필요하면 → HTML로 먼저 만들고 → PDF로 변환하는 방법도 있어요. 오늘 실습에서 만든 HTML처럼요!</div>
+    </div>
+  </div>
+</section>
+
 <!-- 수강생 후기 -->
 <section class="slide" id="reviews" style="background:linear-gradient(135deg,#0f172a,#1e293b);">
-  <div class="card" style="background:transparent;border:none;box-shadow:none;padding:32px 40px;max-height:calc(100vh - 100px);overflow-y:auto;">
+  <div class="card" style="background:transparent;border:none;box-shadow:none;padding:32px 40px;max-height:calc(100vh - 100px);overflow-y:auto;font-family:'Nanum Gothic','Pretendard',sans-serif;">
 
     <!-- 헤더 -->
     <div style="text-align:center;margin-bottom:28px;">
@@ -3018,7 +3086,7 @@ $ claude /doctor</div>
     if(['dooray','dooray-practice','dooray-troubleshoot'].includes(id)) return '2부 · Part 4 (Dooray MCP)';
     if(id.startsWith('part5')||['cli-basic','slash','permission','plan-mode','ralph-omc'].includes(id)) return '2부 · Part 5 명령어 & 도구';
     if(id.startsWith('part6')||['claude-md','token-save','roadmap','glossary','faq','cheatsheet','clawd','assignment'].includes(id)) return '2부 · Part 6 내일부터 쓰기';
-    if(['qna','next-steps','thanks','reviews'].includes(id)) return '마무리';
+    if(['qna','next-steps','thanks','pptx-guide','reviews'].includes(id)) return '마무리';
     return '';
   };
 
