@@ -89,6 +89,24 @@
   .deck-arrow.next{right:18px;}
   .deck-arrow:disabled{opacity:.3;cursor:not-allowed;}
 
+  /* PPTX demo animations */
+  .pptx-demo-term .term-line{opacity:0;font-family:'JetBrains Mono',monospace;font-size:11px;line-height:1.7;animation:termType .4s ease forwards;}
+  .pptx-preview{opacity:0;animation:termType .5s ease forwards;}
+  @keyframes termType{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:none;}}
+  @keyframes barGrow{from{height:0;}to{height:var(--bar-h);}}
+  @keyframes progGrow{from{width:0;}to{width:var(--prog-w);}}
+  .tbl-row-anim{opacity:0;animation:termType .3s ease forwards;}
+  #pptx-guide:not(.active) .term-line,
+  #pptx-guide:not(.active) .pptx-preview,
+  #pptx-guide:not(.active) .bar-anim,
+  #pptx-guide:not(.active) .prog-anim,
+  #pptx-guide:not(.active) .tbl-row-anim{animation:none;opacity:0;}
+  .slide.active#pptx-guide .term-line,
+  .slide.active#pptx-guide .pptx-preview,
+  .slide.active#pptx-guide .tbl-row-anim{animation-play-state:running;}
+  .slide.active#pptx-guide .bar-anim{animation-play-state:running;}
+  .slide.active#pptx-guide .prog-anim{animation-play-state:running;}
+
   /* Progress bar */
   .deck-progress{position:fixed;top:52px;left:0;right:0;height:3px;background:transparent;z-index:55;}
   .deck-progress-bar{height:100%;background:linear-gradient(90deg,#4f46e5,#06b6d4);width:0%;transition:width .25s ease;}
@@ -2849,68 +2867,144 @@ $ claude /doctor</div>
 
 <!-- Claude Code로 PPTX 만들기 -->
 <section class="slide" id="pptx-guide">
-  <div class="card">
+  <div class="card" style="padding:36px 48px;">
     <span class="chip chip-brand">FAQ</span>
     <h2 class="slide-h2 mt-3">Claude Code로 <span style="color:var(--brand);">PPTX</span> 만들 수 있나요?</h2>
-    <p class="lead mt-2">네! python-pptx 라이브러리로 코드 한 줄 안 쓰고 발표자료를 만들 수 있어요.</p>
+    <p class="lead mt-2" style="margin-bottom:4px;">네! 실습 폴더의 엑셀 3개로 바로 시연해볼게요.</p>
 
-    <div class="grid-cards gc-2 mt-6">
-      <!-- 방법 1 -->
-      <div class="tile-brand">
-        <div class="flex items-center gap-2 mb-3"><span class="num">1</span><span class="font-bold">직접 생성 (추천)</span></div>
-        <div class="pre" style="font-size:13px;line-height:1.8;">
-<span class="c"># Claude Code에 이렇게 말해보세요</span>
+    <!-- A / B / C 데모 카드 -->
+    <div class="grid-cards gc-3 mt-4" style="gap:14px;">
 
-<span class="s">"NHN Cloud 파트너 현황을 정리한
-5장짜리 발표자료 pptx로 만들어줘.
-데이터는 partners.xlsx에서 가져와."</span>
-
-<span class="c"># Claude가 알아서:</span>
-<span class="k">1.</span> python-pptx 설치
-<span class="k">2.</span> 엑셀 데이터 읽기
-<span class="k">3.</span> 슬라이드 5장 구성
-<span class="k">4.</span> .pptx 파일 저장</div>
+      <!-- A: 매출 → 차트 PPTX -->
+      <div class="tile" style="padding:0;overflow:hidden;border-radius:16px;">
+        <div style="background:linear-gradient(135deg,#4f46e5,#6366f1);padding:12px 16px;display:flex;align-items:center;gap:8px;">
+          <span style="background:#fff;color:#4f46e5;font-weight:800;width:24px;height:24px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;font-size:12px;">A</span>
+          <span style="color:#fff;font-weight:700;font-size:13px;">매출 차트 PPTX</span>
+        </div>
+        <!-- 터미널 애니메이션 -->
+        <div style="background:#0f172a;padding:14px;min-height:180px;position:relative;">
+          <div style="font-size:10px;color:#64748b;margin-bottom:8px;font-family:'JetBrains Mono',monospace;">~/shareclass-실습</div>
+          <div class="pptx-demo-term" id="demo-a">
+            <div class="term-line" style="animation-delay:0s;"><span style="color:#22d3ee;">❯</span> <span style="color:#e2e8f0;">"매출_데이터_2026년4월.xlsx로</span></div>
+            <div class="term-line" style="animation-delay:0.8s;"><span style="color:#e2e8f0;">  팀별 매출 차트 pptx 만들어줘"</span></div>
+            <div class="term-line" style="animation-delay:2s;"><span style="color:#64748b;">⠋ python-pptx 설치 중...</span></div>
+            <div class="term-line" style="animation-delay:3s;"><span style="color:#64748b;">⠙ 105행 데이터 분석 중...</span></div>
+            <div class="term-line" style="animation-delay:4s;"><span style="color:#86efac;">✓ 매출_차트_2026년4월.pptx 생성!</span></div>
+          </div>
+          <!-- 결과 미리보기 -->
+          <div class="pptx-preview" style="animation-delay:5s;">
+            <div style="background:#fff;border-radius:6px;padding:8px;width:100%;margin-top:10px;">
+              <div style="font-size:8px;font-weight:700;color:#1e293b;margin-bottom:6px;">4월 팀별 매출 현황</div>
+              <div style="display:flex;align-items:flex-end;gap:4px;height:50px;">
+                <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;">
+                  <div class="bar-anim" style="width:100%;background:linear-gradient(180deg,#4f46e5,#818cf8);border-radius:3px 3px 0 0;height:0;animation:barGrow 0.6s ease forwards;animation-delay:5.5s;--bar-h:42px;"></div>
+                  <span style="font-size:6px;color:#64748b;">클라우드</span>
+                </div>
+                <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;">
+                  <div class="bar-anim" style="width:100%;background:linear-gradient(180deg,#06b6d4,#67e8f9);border-radius:3px 3px 0 0;height:0;animation:barGrow 0.6s ease forwards;animation-delay:5.8s;--bar-h:35px;"></div>
+                  <span style="font-size:6px;color:#64748b;">게임사업</span>
+                </div>
+                <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;">
+                  <div class="bar-anim" style="width:100%;background:linear-gradient(180deg,#10b981,#6ee7b7);border-radius:3px 3px 0 0;height:0;animation:barGrow 0.6s ease forwards;animation-delay:6.1s;--bar-h:28px;"></div>
+                  <span style="font-size:6px;color:#64748b;">보안사업</span>
+                </div>
+                <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;">
+                  <div class="bar-anim" style="width:100%;background:linear-gradient(180deg,#f59e0b,#fcd34d);border-radius:3px 3px 0 0;height:0;animation:barGrow 0.6s ease forwards;animation-delay:6.4s;--bar-h:20px;"></div>
+                  <span style="font-size:6px;color:#64748b;">커머스</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div style="padding:10px 14px;background:#f8fafc;font-size:11px;color:#475569;">
+          <b>📊 105행</b> → 팀별 매출 막대차트 + 서비스별 원형차트
+        </div>
       </div>
 
-      <!-- 방법 2 -->
-      <div class="tile-cyan">
-        <div class="flex items-center gap-2 mb-3"><span class="num">2</span><span class="font-bold">템플릿 기반</span></div>
-        <div class="pre" style="font-size:13px;line-height:1.8;">
-<span class="c"># 기존 PPT 템플릿이 있다면</span>
-
-<span class="s">"template.pptx를 기반으로
-3월 매출 데이터를 업데이트해서
-새 pptx로 저장해줘."</span>
-
-<span class="c"># 기존 디자인 유지하면서</span>
-<span class="c"># 데이터만 갈아끼우기 가능!</span>
-
-<span class="c"># 회사 로고, 배경, 폰트 등</span>
-<span class="c"># 템플릿 그대로 유지됩니다</span></div>
+      <!-- B: 메일 명단 → 표 PPTX -->
+      <div class="tile" style="padding:0;overflow:hidden;border-radius:16px;">
+        <div style="background:linear-gradient(135deg,#06b6d4,#0891b2);padding:12px 16px;display:flex;align-items:center;gap:8px;">
+          <span style="background:#fff;color:#0891b2;font-weight:800;width:24px;height:24px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;font-size:12px;">B</span>
+          <span style="color:#fff;font-weight:700;font-size:13px;">정산 명단 PPTX</span>
+        </div>
+        <div style="background:#0f172a;padding:14px;min-height:180px;position:relative;">
+          <div style="font-size:10px;color:#64748b;margin-bottom:8px;font-family:'JetBrains Mono',monospace;">~/shareclass-실습</div>
+          <div class="pptx-demo-term" id="demo-b">
+            <div class="term-line" style="animation-delay:0.3s;"><span style="color:#22d3ee;">❯</span> <span style="color:#e2e8f0;">"메일_발송_명단.xlsx를</span></div>
+            <div class="term-line" style="animation-delay:1.1s;"><span style="color:#e2e8f0;">  깔끔한 표로 pptx 만들어줘"</span></div>
+            <div class="term-line" style="animation-delay:2.3s;"><span style="color:#64748b;">⠋ 12개 거래처 파싱 중...</span></div>
+            <div class="term-line" style="animation-delay:3.3s;"><span style="color:#64748b;">⠙ 슬라이드 구성 중...</span></div>
+            <div class="term-line" style="animation-delay:4.3s;"><span style="color:#86efac;">✓ 정산_명단_발표.pptx 생성!</span></div>
+          </div>
+          <div class="pptx-preview" style="animation-delay:5.3s;">
+            <div style="background:#fff;border-radius:6px;padding:8px;width:100%;margin-top:10px;">
+              <div style="font-size:8px;font-weight:700;color:#1e293b;margin-bottom:4px;">4월 정산 발송 명단</div>
+              <table style="width:100%;border-collapse:collapse;font-size:6.5px;">
+                <tr style="background:#eef2ff;">
+                  <th style="padding:2px 4px;text-align:left;color:#4f46e5;border-bottom:1px solid #e2e8f0;">회사명</th>
+                  <th style="padding:2px 4px;text-align:right;color:#4f46e5;border-bottom:1px solid #e2e8f0;">합계</th>
+                </tr>
+                <tr class="tbl-row-anim" style="animation-delay:5.6s;"><td style="padding:2px 4px;border-bottom:1px solid #f1f5f9;">에이스로지스</td><td style="padding:2px 4px;text-align:right;border-bottom:1px solid #f1f5f9;">3,850,000</td></tr>
+                <tr class="tbl-row-anim" style="animation-delay:5.8s;"><td style="padding:2px 4px;border-bottom:1px solid #f1f5f9;">블루오션테크</td><td style="padding:2px 4px;text-align:right;border-bottom:1px solid #f1f5f9;">14,080,000</td></tr>
+                <tr class="tbl-row-anim" style="animation-delay:6.0s;"><td style="padding:2px 4px;border-bottom:1px solid #f1f5f9;">그린에너지솔루션</td><td style="padding:2px 4px;text-align:right;border-bottom:1px solid #f1f5f9;">7,920,000</td></tr>
+                <tr class="tbl-row-anim" style="animation-delay:6.2s;"><td style="padding:2px 4px;color:#94a3b8;">... 외 8개사</td><td style="padding:2px 4px;text-align:right;font-weight:700;color:#4f46e5;">총 97,350,000</td></tr>
+              </table>
+            </div>
+          </div>
+        </div>
+        <div style="padding:10px 14px;background:#f8fafc;font-size:11px;color:#475569;">
+          <b>📋 12개사</b> → 회사별 정산금액 표 + 합계 자동 계산
+        </div>
       </div>
+
+      <!-- C: 업무현황 → 진행률 PPTX -->
+      <div class="tile" style="padding:0;overflow:hidden;border-radius:16px;">
+        <div style="background:linear-gradient(135deg,#10b981,#059669);padding:12px 16px;display:flex;align-items:center;gap:8px;">
+          <span style="background:#fff;color:#059669;font-weight:800;width:24px;height:24px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;font-size:12px;">C</span>
+          <span style="color:#fff;font-weight:700;font-size:13px;">업무현황 PPTX</span>
+        </div>
+        <div style="background:#0f172a;padding:14px;min-height:180px;position:relative;">
+          <div style="font-size:10px;color:#64748b;margin-bottom:8px;font-family:'JetBrains Mono',monospace;">~/shareclass-실습</div>
+          <div class="pptx-demo-term" id="demo-c">
+            <div class="term-line" style="animation-delay:0.6s;"><span style="color:#22d3ee;">❯</span> <span style="color:#e2e8f0;">"팀원_업무현황.xlsx로</span></div>
+            <div class="term-line" style="animation-delay:1.4s;"><span style="color:#e2e8f0;">  진행률 대시보드 pptx 만들어줘"</span></div>
+            <div class="term-line" style="animation-delay:2.6s;"><span style="color:#64748b;">⠋ 26개 업무 분석 중...</span></div>
+            <div class="term-line" style="animation-delay:3.6s;"><span style="color:#64748b;">⠙ 팀별 진행률 계산 중...</span></div>
+            <div class="term-line" style="animation-delay:4.6s;"><span style="color:#86efac;">✓ 업무현황_대시보드.pptx 생성!</span></div>
+          </div>
+          <div class="pptx-preview" style="animation-delay:5.6s;">
+            <div style="background:#fff;border-radius:6px;padding:8px;width:100%;margin-top:10px;">
+              <div style="font-size:8px;font-weight:700;color:#1e293b;margin-bottom:6px;">팀별 업무 진행률</div>
+              <div style="display:flex;flex-direction:column;gap:5px;">
+                <div>
+                  <div style="display:flex;justify-content:space-between;font-size:6.5px;color:#475569;margin-bottom:2px;"><span>기획팀</span><span>59%</span></div>
+                  <div style="height:6px;background:#f1f5f9;border-radius:3px;overflow:hidden;"><div class="prog-anim" style="height:100%;background:linear-gradient(90deg,#4f46e5,#818cf8);border-radius:3px;width:0;animation:progGrow 0.8s ease forwards;animation-delay:6s;--prog-w:59%;"></div></div>
+                </div>
+                <div>
+                  <div style="display:flex;justify-content:space-between;font-size:6.5px;color:#475569;margin-bottom:2px;"><span>개발팀</span><span>72%</span></div>
+                  <div style="height:6px;background:#f1f5f9;border-radius:3px;overflow:hidden;"><div class="prog-anim" style="height:100%;background:linear-gradient(90deg,#10b981,#6ee7b7);border-radius:3px;width:0;animation:progGrow 0.8s ease forwards;animation-delay:6.3s;--prog-w:72%;"></div></div>
+                </div>
+                <div>
+                  <div style="display:flex;justify-content:space-between;font-size:6.5px;color:#475569;margin-bottom:2px;"><span>디자인팀</span><span>45%</span></div>
+                  <div style="height:6px;background:#f1f5f9;border-radius:3px;overflow:hidden;"><div class="prog-anim" style="height:100%;background:linear-gradient(90deg,#f59e0b,#fcd34d);border-radius:3px;width:0;animation:progGrow 0.8s ease forwards;animation-delay:6.6s;--prog-w:45%;"></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div style="padding:10px 14px;background:#f8fafc;font-size:11px;color:#475569;">
+          <b>📈 26건</b> → 팀별 진행률 바 + 상태별 요약 표
+        </div>
+      </div>
+
     </div>
 
-    <div class="grid-cards gc-3 mt-4">
-      <div class="tile-soft" style="text-align:center;">
-        <div style="font-size:28px;">📊</div>
-        <div class="font-bold mt-2">차트 삽입</div>
-        <div class="small mt-1">막대/원형/꺾은선 차트를<br>슬라이드에 바로 삽입</div>
+    <div class="tile-amber mt-4" style="display:flex;align-items:center;gap:12px;">
+      <div style="font-size:24px;">💡</div>
+      <div>
+        <div class="font-bold text-sm">핵심 포인트</div>
+        <div class="text-sm mt-1">엑셀 파일 이름만 말하면 Claude가 알아서 <b>python-pptx 설치 → 데이터 읽기 → 슬라이드 구성 → 저장</b>까지 해줍니다. 기존 템플릿(.pptx)이 있으면 디자인 유지하면서 데이터만 갈아끼우기도 가능!</div>
       </div>
-      <div class="tile-soft" style="text-align:center;">
-        <div style="font-size:28px;">🖼️</div>
-        <div class="font-bold mt-2">이미지 배치</div>
-        <div class="small mt-1">로고, 스크린샷 등<br>원하는 위치에 자동 배치</div>
-      </div>
-      <div class="tile-soft" style="text-align:center;">
-        <div style="font-size:28px;">📋</div>
-        <div class="font-bold mt-2">표 자동 생성</div>
-        <div class="small mt-1">엑셀/CSV 데이터를<br>깔끔한 표로 변환</div>
-      </div>
-    </div>
-
-    <div class="tile-amber mt-4">
-      <div class="font-bold text-sm">💡 Tip</div>
-      <div class="text-sm mt-1">복잡한 디자인이 필요하면 → HTML로 먼저 만들고 → PDF로 변환하는 방법도 있어요. 오늘 실습에서 만든 HTML처럼요!</div>
     </div>
   </div>
 </section>
@@ -3141,6 +3235,14 @@ $ claude /doctor</div>
     const card = slides[idx].querySelector('.card');
     if(card) card.scrollTop = 0;
     slides[idx].scrollTop = 0;
+    // Replay PPTX demo animations when entering the slide
+    if(targetId === 'pptx-guide'){
+      slides[idx].querySelectorAll('.term-line,.pptx-preview,.bar-anim,.prog-anim,.tbl-row-anim').forEach(el=>{
+        el.style.animation='none';
+        el.offsetHeight; // force reflow
+        el.style.animation='';
+      });
+    }
   }
   function goTo(i){ idx = Math.max(0, Math.min(total-1, i)); render(); }
   function next(){ goTo(idx+1); }
