@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Claude Code 실습 가이드</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--brand:#4f46e5;--brand-light:#eef2ff;--bg:#f8fafc;--card:#fff;--code-bg:#0f172a;--code-text:#e2e8f0;--success:#16a34a;--success-bg:#f0fdf4;--success-border:#bbf7d0;--fail:#dc2626;--fail-bg:#fef2f2;--fail-border:#fecaca;--text:#1e293b;--muted:#64748b;--border:#e2e8f0;--radius:10px}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Noto Sans KR",sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column}
+.progress-bar-wrap{position:sticky;top:0;z-index:100;background:var(--card);border-bottom:1px solid var(--border);padding:12px 24px;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.progress-track{flex:1;min-width:200px;height:8px;background:var(--border);border-radius:4px;overflow:hidden}
+.progress-fill{height:100%;background:var(--brand);border-radius:4px;transition:width .3s}
+.progress-text{font-size:13px;color:var(--muted);white-space:nowrap}
+.step-select{padding:6px 10px;border:1px solid var(--border);border-radius:6px;font-size:14px;background:var(--card);color:var(--text);cursor:pointer}
+.main{flex:1;display:flex;max-width:1400px;width:100%;margin:0 auto;padding:24px;gap:24px}
+.panel{background:var(--card);border-radius:var(--radius);border:1px solid var(--border);overflow:hidden}
+.left-panel{flex:1;min-width:0;display:flex;flex-direction:column}
+.right-panel{flex:1;min-width:0;display:flex;flex-direction:column;overflow-y:auto;max-height:calc(100vh - 140px)}
+.panel-header{padding:14px 20px;background:var(--brand-light);border-bottom:1px solid var(--border);font-weight:600;font-size:15px;color:var(--brand)}
+.panel-body{padding:20px;flex:1;overflow-y:auto}
+.terminal{background:var(--code-bg);border-radius:8px;padding:0;font-family:"Cascadia Code","Fira Code","Consolas",monospace;font-size:13px;color:var(--code-text);overflow:hidden}
+.terminal-bar{display:flex;align-items:center;gap:6px;padding:10px 14px;background:rgba(255,255,255,.06)}
+.terminal-dot{width:10px;height:10px;border-radius:50%}
+.terminal-dot.r{background:#ef4444}.terminal-dot.y{background:#eab308}.terminal-dot.g{background:#22c55e}
+.terminal-bar span{margin-left:8px;font-size:12px;color:#94a3b8}
+.terminal-body{padding:14px 18px;line-height:1.7;white-space:pre-wrap;word-break:break-all}
+.terminal-body .prompt{color:#818cf8}.terminal-body .output{color:#a5f3fc}.terminal-body .comment{color:#64748b}
+.file-preview{background:#fefefe;border:1px solid var(--border);border-radius:8px;overflow:hidden}
+.file-preview-bar{display:flex;align-items:center;gap:8px;padding:8px 14px;background:#f1f5f9;border-bottom:1px solid var(--border);font-size:12px;color:var(--muted)}
+.file-preview-bar .icon{font-size:14px}
+.file-preview-body{padding:16px 18px;font-size:13px;line-height:1.8;color:var(--text)}
+.file-preview-body h3{font-size:15px;font-weight:700;margin:0 0 8px;color:var(--text)}
+.file-preview-body table{width:100%;border-collapse:collapse;margin:8px 0;font-size:12px}
+.file-preview-body th,.file-preview-body td{padding:6px 10px;border:1px solid var(--border);text-align:left}
+.file-preview-body th{background:var(--brand-light);color:var(--brand);font-weight:600}
+.dashboard-mock{background:#f8fafc;border:1px solid var(--border);border-radius:8px;padding:20px;display:flex;flex-direction:column;gap:16px}
+.chart-bar-group{display:flex;align-items:flex-end;gap:12px;height:120px;padding:0 10px}
+.chart-bar{flex:1;background:var(--brand);border-radius:4px 4px 0 0;min-width:30px;position:relative;transition:height .3s}
+.chart-bar-label{position:absolute;bottom:-20px;left:50%;transform:translateX(-50%);font-size:10px;color:var(--muted);white-space:nowrap}
+.chart-bar-val{position:absolute;top:-18px;left:50%;transform:translateX(-50%);font-size:10px;color:var(--text);font-weight:600}
+.pie-wrap{display:flex;align-items:center;gap:16px}
+.pie-svg{width:100px;height:100px}
+.pie-legend{font-size:12px;line-height:2}
+.pie-legend span{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px;vertical-align:middle}
+.code-block-wrap{position:relative;margin:10px 0}
+.code-block{background:var(--code-bg);color:var(--code-text);padding:14px 16px;border-radius:8px;font-family:"Cascadia Code","Fira Code","Consolas",monospace;font-size:13px;line-height:1.6;overflow-x:auto;white-space:pre-wrap;word-break:break-all}
+.copy-btn{position:absolute;top:8px;right:8px;background:rgba(255,255,255,.1);border:none;color:#94a3b8;font-size:12px;padding:4px 10px;border-radius:4px;cursor:pointer;transition:background .2s}
+.copy-btn:hover{background:rgba(255,255,255,.2);color:#fff}
+.copy-btn.copied{color:#22c55e}
+.box{border-radius:8px;padding:14px 16px;margin:10px 0;font-size:13px;line-height:1.6}
+.box-success{background:var(--success-bg);border:1px solid var(--success-border)}
+.box-success .box-title{color:var(--success);font-weight:700;margin-bottom:4px}
+.box-fail{background:var(--fail-bg);border:1px solid var(--fail-border)}
+.box-fail .box-title{color:var(--fail);font-weight:700;margin-bottom:4px}
+.desc{font-size:14px;line-height:1.8;margin-bottom:12px}
+.desc ul{padding-left:20px;margin:6px 0}
+.desc li{margin:4px 0}
+.section-title{font-size:16px;font-weight:700;margin-bottom:10px;color:var(--text)}
+.completion-area{margin-top:16px;padding-top:16px;border-top:1px solid var(--border)}
+.check-label{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:600;cursor:pointer;user-select:none}
+.check-label input[type=checkbox]{width:18px;height:18px;accent-color:var(--brand)}
+.memo-area{margin-top:12px}
+.memo-area label{font-size:13px;color:var(--muted);display:block;margin-bottom:4px}
+.memo-area textarea{width:100%;min-height:70px;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;resize:vertical;background:var(--bg)}
+.memo-area textarea:focus{outline:none;border-color:var(--brand);box-shadow:0 0 0 3px rgba(79,70,229,.1)}
+.bottom-nav{display:flex;align-items:center;justify-content:space-between;padding:14px 24px;background:var(--card);border-top:1px solid var(--border);flex-wrap:wrap;gap:8px}
+.nav-btn{padding:10px 22px;border:1px solid var(--border);border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;background:var(--card);color:var(--text);transition:all .15s}
+.nav-btn:hover{border-color:var(--brand);color:var(--brand)}
+.nav-btn.primary{background:var(--brand);color:#fff;border-color:var(--brand)}
+.nav-btn.primary:hover{background:#4338ca}
+.nav-btn:disabled{opacity:.4;cursor:default}
+.page-info{font-size:13px;color:var(--muted);text-align:center}
+.page-info small{display:block;font-size:11px;margin-top:2px}
+.export-wrap{text-align:center;padding:12px 0}
+.export-btn{padding:10px 24px;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;background:var(--brand);color:#fff;transition:background .15s}
+.export-btn:hover{background:#4338ca}
+@media(max-width:768px){
+  .main{flex-direction:column;padding:12px}
+  .left-panel,.right-panel{flex:none;max-height:none}
+  .right-panel{max-height:none}
+  .progress-bar-wrap{padding:10px 14px;gap:10px}
+  .bottom-nav{padding:10px 14px}
+}
+</style>
+</head>
+<body>
+
+<div class="progress-bar-wrap">
+  <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+  <span class="progress-text" id="progressText">0 / 14</span>
+  <select class="step-select" id="stepSelect"></select>
+</div>
+
+<div class="main">
+  <div class="panel left-panel">
+    <div class="panel-header" id="leftHeader">미리보기</div>
+    <div class="panel-body" id="leftBody"></div>
+  </div>
+  <div class="panel right-panel">
+    <div class="panel-header" id="rightHeader">설명</div>
+    <div class="panel-body" id="rightBody"></div>
+  </div>
+</div>
+
+<div class="bottom-nav">
+  <button class="nav-btn" id="prevBtn" onclick="go(-1)">이전</button>
+  <div class="page-info">
+    <span id="pageCounter">1 / 14</span>
+    <small>← → 키로 넘기기</small>
+  </div>
+  <button class="nav-btn primary" id="nextBtn" onclick="go(1)">다음</button>
+</div>
+
+<div class="export-wrap">
+  <button class="export-btn" onclick="exportMemos()">📤 내 메모 모두 텍스트로 다운로드</button>
+</div>
+
+<script>
+const STEPS=[
+{id:1,title:"Node.js 확인",
+left(){return terminal("Terminal",[
+  {type:"prompt",text:"$ node -v"},
+  {type:"output",text:"v20.18.0"}
+])},
+right(){return `
+<div class="section-title">Node.js 설치 확인</div>
+<div class="desc">터미널(명령 프롬프트)을 열고 아래 명령어를 입력하세요.</div>
+${codeBlock("node -v")}
+<div class="box box-success"><div class="box-title">✅ 성공</div>v20.x.x 같은 버전 번호가 나오면 설치 완료</div>
+<div class="box box-fail"><div class="box-title">❌ 안 되면</div><a href="https://nodejs.org" target="_blank">https://nodejs.org</a> → LTS 다운로드 → 설치 → 터미널 재시작</div>
+`}},
+
+{id:2,title:"Git 확인",
+left(){return terminal("Terminal",[
+  {type:"prompt",text:"$ git --version"},
+  {type:"output",text:"git version 2.45.1.windows.1"}
+])},
+right(){return `
+<div class="section-title">Git 설치 확인</div>
+<div class="desc">아래 명령어로 Git이 설치되어 있는지 확인합니다.</div>
+${codeBlock("git --version")}
+<div class="box box-success"><div class="box-title">✅ 성공</div>git version 2.x.x 숫자가 나오면 OK</div>
+<div class="box box-fail"><div class="box-title">❌ 안 되면</div>Windows: <a href="https://git-scm.com" target="_blank">https://git-scm.com</a> 다운로드 설치<br>Mac: 터미널에서 <code>git --version</code> 입력 시 자동 안내 팝업</div>
+`}},
+
+{id:3,title:"Python 확인",
+left(){return terminal("Terminal",[
+  {type:"prompt",text:"$ python --version"},
+  {type:"output",text:"Python 3.12.4"}
+])},
+right(){return `
+<div class="section-title">Python 설치 확인</div>
+<div class="desc">Python 3.10 이상이 필요합니다.</div>
+${codeBlock("python --version")}
+<div class="box box-success"><div class="box-title">✅ 성공</div>Python 3.10 이상이면 OK</div>
+<div class="box box-fail"><div class="box-title">❌ 안 되면</div><a href="https://python.org" target="_blank">https://python.org</a> → Downloads → 설치 시 <strong>"Add to PATH" 체크 필수</strong></div>
+`}},
+
+{id:4,title:"Claude Code 설치",
+left(){return terminal("Terminal",[
+  {type:"prompt",text:"$ npm install -g @anthropic-ai/claude-code"},
+  {type:"output",text:"added 1 package in 12s"},
+  {type:"prompt",text:"$ claude --version"},
+  {type:"output",text:"1.0.33 (Claude Code)"}
+])},
+right(){return `
+<div class="section-title">Claude Code 설치</div>
+<div class="desc">npm으로 Claude Code를 전역 설치합니다.</div>
+${codeBlock("npm install -g @anthropic-ai/claude-code")}
+<div class="desc">설치 완료 후 버전 확인:</div>
+${codeBlock("claude --version")}
+<div class="box box-success"><div class="box-title">✅ 성공</div>버전 번호가 출력되면 설치 완료</div>
+<div class="box box-fail"><div class="box-title">❌ 안 되면</div>Node.js가 설치되어 있는지 다시 확인 (Step 1)<br>권한 오류 시 관리자 권한으로 터미널 실행</div>
+`}},
+
+{id:5,title:"첫 로그인",
+left(){return terminal("Terminal",[
+  {type:"prompt",text:"$ claude"},
+  {type:"output",text:"Welcome to Claude Code!"},
+  {type:"comment",text:"# 브라우저가 열리며 로그인 페이지 표시"},
+  {type:"output",text:"✓ Successfully authenticated"},
+  {type:"output",text:""},
+  {type:"output",text:'  Welcome to Claude Code!'},
+  {type:"output",text:"  /help for available commands"},
+])},
+right(){return `
+<div class="section-title">첫 로그인</div>
+<div class="desc">터미널에서 <code>claude</code>를 입력하면 브라우저가 열립니다.</div>
+${codeBlock("claude")}
+<div class="desc"><ul>
+<li>브라우저에서 Anthropic 계정으로 로그인</li>
+<li>로그인 성공 시 터미널에 환영 메시지 표시</li>
+</ul></div>
+<div class="box box-success"><div class="box-title">✅ 성공</div>"Successfully authenticated" 메시지가 보이면 완료</div>
+<div class="box box-fail"><div class="box-title">❌ 안 되면</div>브라우저 팝업 차단 확인<br>VPN 연결 시 해제 후 재시도</div>
+`}},
+
+{id:6,title:"첫 대화",
+left(){return terminal("Claude Code",[
+  {type:"prompt",text:"> 안녕하세요"},
+  {type:"output",text:""},
+  {type:"output",text:"안녕하세요! Claude Code입니다."},
+  {type:"output",text:"터미널에서 코딩, 파일 작업, 시스템 명령 등을"},
+  {type:"output",text:"도와드릴 수 있습니다."},
+  {type:"output",text:"무엇을 도와드릴까요?"},
+  {type:"prompt",text:""},
+  {type:"prompt",text:"> /clear"},
+  {type:"comment",text:"# 대화 초기화 완료"},
+])},
+right(){return `
+<div class="section-title">첫 대화 해보기</div>
+<div class="desc">"안녕하세요"를 입력해 Claude가 응답하는지 확인합니다.</div>
+${codeBlock("안녕하세요")}
+<div class="desc">대화 초기화:</div>
+${codeBlock("/clear")}
+<div class="box box-success"><div class="box-title">✅ 성공</div>Claude의 응답이 오면 정상 작동!</div>
+<div class="box box-fail"><div class="box-title">❌ 안 되면</div>인터넷 연결 확인<br><code>claude</code>를 다시 실행해 재로그인</div>
+`}},
+
+{id:7,title:"Dooray MCP 설치",
+left(){return terminal("Terminal",[
+  {type:"prompt",text:"$ git clone https://github.com/ariri48/dooray-mcp.git"},
+  {type:"output",text:"Cloning into 'dooray-mcp'..."},
+  {type:"output",text:"done."},
+  {type:"prompt",text:"$ cd dooray-mcp"},
+  {type:"prompt",text:"$ python setup.py"},
+  {type:"output",text:"Dooray API Token을 입력하세요:"},
+  {type:"comment",text:"# 토큰 입력 후"},
+  {type:"output",text:"✓ 의존성 설치 완료"},
+  {type:"output",text:"✓ MCP 서버 등록 완료"},
+  {type:"output",text:"Claude Code를 재시작해주세요."},
+])},
+right(){return `
+<div class="section-title">Dooray MCP 설치</div>
+<div class="desc">Dooray 연동을 위한 MCP 서버를 설치합니다.</div>
+${codeBlock(`git clone https://github.com/ariri48/dooray-mcp.git
+cd dooray-mcp
+python setup.py`)}
+<div class="desc"><ul>
+<li><code>setup.py</code>가 토큰 입력 → 의존성 설치 → MCP 등록 자동 처리</li>
+<li>Claude Code 재시작 후 동작 확인</li>
+</ul></div>
+${codeBlock("내 두레이 태스크 보여줘")}
+<div class="box box-success"><div class="box-title">✅ 성공</div>Dooray 태스크 목록이 표시되면 연동 완료</div>
+<div class="box box-fail"><div class="box-title">❌ 안 되면</div>API 토큰이 올바른지 확인 (Dooray 설정 > API 토큰)<br>Claude Code 재시작 필수</div>
+`}},
+
+{id:8,title:"실습 2-A · 매출 분석",
+left(){return filePreview("매출분석_결과.md",`
+<h3>팀별 매출 분석 결과</h3>
+<table>
+<tr><th>순위</th><th>팀명</th><th>매출</th><th>비율</th></tr>
+<tr><td>1</td><td>영업1팀</td><td>45,200,000</td><td>32.1%</td></tr>
+<tr><td>2</td><td>영업3팀</td><td>38,500,000</td><td>27.3%</td></tr>
+<tr><td>3</td><td>영업2팀</td><td>31,800,000</td><td>22.6%</td></tr>
+<tr><td>4</td><td>기술지원팀</td><td>25,300,000</td><td>18.0%</td></tr>
+</table>
+<p style="margin-top:10px;color:#64748b;font-size:12px">총 매출: 140,800,000원 | 전월 대비 +12.4%</p>
+<p style="color:#64748b;font-size:12px">1위 영업1팀이 전체 매출의 32.1%를 차지</p>
+`)},
+right(){return `
+<div class="section-title">실습 2-A: 매출 데이터 분석</div>
+<div class="desc">샘플 엑셀 파일을 Claude에게 분석 요청합니다.</div>
+<div class="desc">파일: <code>sample-data/매출데이터.xlsx</code></div>
+${codeBlock("이 엑셀 파일 열어서 팀별 매출 합산하고 순위 매겨줘")}
+<div class="box box-success"><div class="box-title">✅ 성공</div>팀별 매출 합산 + 순위가 포함된 .md 파일이 생성됨</div>
+<div class="box box-fail"><div class="box-title">❌ 안 되면</div>파일 경로가 맞는지 확인<br>현재 디렉토리에서 <code>ls sample-data/</code>로 파일 존재 확인</div>
+`}},
+
+{id:9,title:"실습 2-B · 주간보고",
+left(){return filePreview("주간보고.md",`
+<h3>주간 업무 보고</h3>
+<p style="color:#64748b;font-size:12px;margin-bottom:12px">2026년 5월 3주차 | 파트너지원파트</p>
+
+<h3 style="font-size:14px;color:var(--brand)">1. 이번 주 실적</h3>
+<ul style="font-size:13px;margin:6px 0 12px 18px">
+<li>전체 매출 140,800,000원 달성 (목표 대비 112%)</li>
+<li>영업1팀 1위 (45,200,000원, 32.1%)</li>
+<li>전월 대비 12.4% 성장</li>
+</ul>
+
+<h3 style="font-size:14px;color:var(--brand)">2. 주요 이슈</h3>
+<ul style="font-size:13px;margin:6px 0 12px 18px">
+<li>기술지원팀 매출 하락세 주시 필요</li>
+<li>신규 파트너 2개사 온보딩 진행 중</li>
+</ul>
+
+<h3 style="font-size:14px;color:var(--brand)">3. 다음 주 계획</h3>
+<ul style="font-size:13px;margin:6px 0 12px 18px">
+<li>Q2 실적 중간 점검 미팅</li>
+<li>하반기 목표 수립 착수</li>
+</ul>
+`)},
+right(){return `
+<div class="section-title">실습 2-B: 주간보고 생성</div>
+<div class="desc">매출 분석 결과를 기반으로 주간보고를 자동 생성합니다.</div>
+${codeBlock("매출 분석 결과로 팀장님께 보고할 주간보고 만들어줘")}
+<div class="desc">3섹션 구조로 자동 생성됩니다:
+<ul><li>이번 주 실적</li><li>주요 이슈</li><li>다음 주 계획</li></ul></div>
+<div class="box box-success"><div class="box-title">✅ 성공</div>3섹션 구조의 주간보고 .md 파일이 생성됨</div>
+<div class="box box-fail"><div class="box-title">❌ 안 되면</div>이전 대화(매출 분석)가 남아 있는지 확인<br>대화가 초기화됐다면 분석 파일 경로를 함께 전달</div>
+`}},
+
+{id:10,title:"실습 2-C · 정산 메일",
+left(){return filePreview("정산메일_초안.md",`
+<h3>파트너별 정산 메일 초안</h3>
+<p style="color:#64748b;font-size:12px;margin-bottom:12px">2026년 3월분 영업대행수수료 정산</p>
+
+<div style="border:1px solid var(--border);border-radius:6px;padding:12px;margin:8px 0">
+<p style="font-weight:700;font-size:13px">📧 수신: 김파트너 (partner_kim@example.com)</p>
+<p style="font-size:13px;margin:4px 0">정산 금액: <strong>1,200,000원</strong> (VAT 별도)</p>
+<p style="font-size:12px;color:#64748b">거래명세서 첨부 | 세금계산서 15일까지 발행 요청</p>
+</div>
+
+<div style="border:1px solid var(--border);border-radius:6px;padding:12px;margin:8px 0">
+<p style="font-weight:700;font-size:13px">📧 수신: 이파트너 (partner_lee@example.com)</p>
+<p style="font-size:13px;margin:4px 0">정산 금액: <strong>800,000원</strong> (VAT 별도)</p>
+<p style="font-size:12px;color:#64748b">거래명세서 첨부 | 세금계산서 15일까지 발행 요청</p>
+</div>
+
+<div style="border:1px solid var(--border);border-radius:6px;padding:12px;margin:8px 0">
+<p style="font-weight:700;font-size:13px">📧 수신: 박파트너 (partner_park@example.com)</p>
+<p style="font-size:13px;margin:4px 0">정산 금액: <strong>2,500,000원</strong> (VAT 별도)</p>
+<p style="font-size:12px;color:#64748b">거래명세서 첨부 | 세금계산서 15일까지 발행 요청</p>
+</div>
+`)},
+right(){return `
+<div class="section-title">실습 2-C: 정산 메일 초안</div>
+<div class="desc">정산 데이터를 기반으로 파트너별 메일 초안을 생성합니다.</div>
+${codeBlock("이 정산 데이터로 각 파트너에게 보낼 메일 초안 만들어줘")}
+<div class="desc">파트너별 금액이 포함된 메일이 자동 생성됩니다.</div>
+<div class="box box-success"><div class="box-title">✅ 성공</div>파트너별 금액 + 수신자 정보가 포함된 메일 초안 생성</div>
+<div class="box box-fail"><div class="box-title">❌ 안 되면</div>정산 데이터 파일을 명시적으로 지정해서 다시 요청</div>
+`}},
+
+{id:11,title:"실습 3-A · 대시보드",
+left(){return `
+<div class="dashboard-mock">
+  <div style="font-weight:700;font-size:14px;color:var(--text)">📊 팀원 업무현황 대시보드</div>
+  <div style="font-size:12px;color:var(--muted)">Streamlit 실행 화면 미리보기</div>
+  <div class="chart-bar-group">
+    <div class="chart-bar" style="height:100%"><span class="chart-bar-val">24</span><span class="chart-bar-label">김사원</span></div>
+    <div class="chart-bar" style="height:75%;background:#818cf8"><span class="chart-bar-val">18</span><span class="chart-bar-label">이대리</span></div>
+    <div class="chart-bar" style="height:58%;background:#a5b4fc"><span class="chart-bar-val">14</span><span class="chart-bar-label">박과장</span></div>
+    <div class="chart-bar" style="height:42%;background:#c7d2fe"><span class="chart-bar-val">10</span><span class="chart-bar-label">최주임</span></div>
+  </div>
+  <div style="margin-top:20px">
+    <div class="pie-wrap">
+      <svg class="pie-svg" viewBox="0 0 32 32">
+        <circle r="16" cx="16" cy="16" fill="#4f46e5"/>
+        <circle r="16" cx="16" cy="16" fill="transparent" stroke="#818cf8" stroke-width="32" stroke-dasharray="40 60.5" stroke-dashoffset="25" transform="rotate(-90 16 16)"/>
+        <circle r="16" cx="16" cy="16" fill="transparent" stroke="#a5b4fc" stroke-width="32" stroke-dasharray="25 75.5" stroke-dashoffset="65" transform="rotate(-90 16 16)"/>
+        <circle r="16" cx="16" cy="16" fill="transparent" stroke="#c7d2fe" stroke-width="32" stroke-dasharray="15 85.5" stroke-dashoffset="90" transform="rotate(-90 16 16)"/>
+      </svg>
+      <div class="pie-legend">
+        <div><span style="background:#4f46e5"></span>완료 (35%)</div>
+        <div><span style="background:#818cf8"></span>진행중 (40%)</div>
+        <div><span style="background:#a5b4fc"></span>대기 (15%)</div>
+        <div><span style="background:#c7d2fe"></span>지연 (10%)</div>
+      </div>
+    </div>
+  </div>
+</div>
+`},
+right(){return `
+<div class="section-title">실습 3-A: Streamlit 대시보드</div>
+<div class="desc">엑셀 데이터로 시각화 대시보드를 만듭니다.</div>
+<div class="desc">파일: <code>sample-data/팀원_업무현황.xlsx</code></div>
+${codeBlock("이 데이터로 Streamlit 대시보드 만들어줘")}
+<div class="desc">실행:</div>
+${codeBlock("streamlit run dashboard.py")}
+<div class="box box-success"><div class="box-title">✅ 성공</div>브라우저에 차트가 포함된 대시보드가 보이면 완료!</div>
+<div class="box box-fail"><div class="box-title">❌ 안 되면</div><code>pip install streamlit pandas plotly</code> 실행 후 재시도<br>포트 충돌 시 <code>--server.port 8504</code> 옵션 추가</div>
+`}},
+
+{id:12,title:"실습 3-B · Action Item",
+left(){return filePreview("action_items.md",`
+<h3>회의록 Action Items</h3>
+<p style="color:#64748b;font-size:12px;margin-bottom:12px">2026년 5월 19일 주간회의</p>
+<table>
+<tr><th>담당자</th><th>항목</th><th>기한</th><th>상태</th></tr>
+<tr><td>김사원</td><td>Q2 매출 리포트 작성</td><td>5/23</td><td>🔴 미착수</td></tr>
+<tr><td>이대리</td><td>신규 파트너 계약서 검토</td><td>5/21</td><td>🟡 진행중</td></tr>
+<tr><td>박과장</td><td>정산 시스템 테스트</td><td>5/22</td><td>🟡 진행중</td></tr>
+<tr><td>최주임</td><td>교육 자료 업데이트</td><td>5/26</td><td>🔴 미착수</td></tr>
+</table>
+<p style="margin-top:14px;font-size:13px;font-weight:600;color:var(--brand)">📌 추가 응용</p>
+<p style="font-size:12px;color:#64748b">"이걸 Dooray 태스크로 만들어줘" → 담당자별 태스크 자동 생성</p>
+`)},
+right(){return `
+<div class="section-title">실습 3-B: Action Item 추출</div>
+<div class="desc">회의록에서 Action Item을 추출하여 표로 정리합니다.</div>
+${codeBlock("회의록에서 Action Item 뽑아서 표로 정리해줘")}
+<div class="desc">추가 응용 (Dooray MCP 연동):</div>
+${codeBlock("이걸 Dooray 태스크로 만들어줘")}
+<div class="box box-success"><div class="box-title">✅ 성공</div>담당자/항목/기한/상태가 포함된 표가 생성됨</div>
+<div class="box box-fail"><div class="box-title">❌ 안 되면</div>회의록 파일을 먼저 만들거나 직접 텍스트를 붙여넣기<br>Dooray 연동은 Step 7 MCP 설치 필요</div>
+`}},
+
+{id:13,title:"CLAUDE.md 만들기",
+left(){return filePreview("CLAUDE.md",`
+<h3>CLAUDE.md</h3>
+<pre style="background:#f8fafc;padding:12px;border-radius:6px;font-size:12px;line-height:1.7;white-space:pre-wrap;font-family:'Cascadia Code','Fira Code',monospace;color:var(--text);"># CLAUDE.md
+
+## 프로젝트 설명
+이 프로젝트는 파트너 정산 자동화 시스템입니다.
+
+## 코딩 스타일
+- Python 3.10+
+- 함수명: snake_case
+- 주석: 한국어
+
+## 자주 쓰는 명령어
+- streamlit run app.py
+- python main.py --test
+
+## 주의사항
+- .env 파일은 절대 커밋하지 않기
+- 금액 계산 시 원 미만 절사</pre>
+`)},
+right(){return `
+<div class="section-title">CLAUDE.md 만들기</div>
+<div class="desc">프로젝트 루트에 <code>CLAUDE.md</code>를 만들면 Claude가 매번 자동으로 읽습니다.</div>
+${codeBlock("CLAUDE.md 파일 만들어줘")}
+<div class="desc">포함할 내용:
+<ul>
+<li>프로젝트 설명</li>
+<li>코딩 스타일 / 컨벤션</li>
+<li>자주 쓰는 명령어</li>
+<li>주의사항</li>
+</ul></div>
+<div class="box box-success"><div class="box-title">✅ 성공</div>CLAUDE.md 파일이 생성되고, 다음 대화부터 자동 적용</div>
+<div class="box box-fail"><div class="box-title">❌ 안 되면</div>파일 위치가 프로젝트 최상위(루트)인지 확인<br>파일명 대소문자 정확히: <code>CLAUDE.md</code></div>
+`}},
+
+{id:14,title:"과제 제출",
+left(){return `
+<div class="file-preview">
+  <div class="file-preview-bar"><span class="icon">📋</span> Dooray 태스크 생성</div>
+  <div class="file-preview-body">
+    <div style="border:1px solid var(--border);border-radius:8px;padding:16px;background:#fefefe">
+      <div style="font-size:12px;color:var(--muted);margin-bottom:8px">프로젝트: 쉐어클래스</div>
+      <h3 style="font-size:16px;margin-bottom:10px">[과제] Claude Code 실습 결과 제출</h3>
+      <div style="font-size:13px;line-height:1.8;color:var(--text)">
+        <p><strong>제출자:</strong> 홍길동</p>
+        <p><strong>실습 완료 항목:</strong></p>
+        <ul style="margin:4px 0 8px 18px;font-size:12px">
+          <li>✅ 매출 데이터 분석</li>
+          <li>✅ 주간보고 생성</li>
+          <li>✅ Streamlit 대시보드</li>
+          <li>✅ CLAUDE.md 작성</li>
+        </ul>
+        <p><strong>소감:</strong> 반복 업무 자동화에 활용 가능성 확인</p>
+      </div>
+    </div>
+  </div>
+</div>
+`},
+right(){return `
+<div class="section-title">과제 제출</div>
+<div class="desc">실습 결과를 Dooray에 제출합니다.</div>
+<div class="desc">Dooray URL: <a href="https://nhnent.dooray.com" target="_blank">https://nhnent.dooray.com</a></div>
+${codeBlock("두레이에 과제 제출 태스크 만들어줘")}
+<div class="desc">또는 직접 Dooray에서 태스크를 생성해도 됩니다.</div>
+<div class="box box-success"><div class="box-title">✅ 성공</div>Dooray에 태스크가 생성되면 완료!</div>
+<div class="box box-fail"><div class="box-title">❌ 안 되면</div>Dooray MCP가 설치되어 있는지 확인 (Step 7)<br>또는 Dooray 웹에서 직접 태스크 생성</div>
+`}}
+];
+
+let cur=0;
+
+function terminal(title,lines){
+  const body=lines.map(l=>{
+    if(l.type==="prompt")return`<span class="prompt">${esc(l.text)}</span>`;
+    if(l.type==="comment")return`<span class="comment">${esc(l.text)}</span>`;
+    return`<span class="output">${esc(l.text)}</span>`;
+  }).join("\n");
+  return`<div class="terminal"><div class="terminal-bar"><span class="terminal-dot r"></span><span class="terminal-dot y"></span><span class="terminal-dot g"></span><span>${esc(title)}</span></div><div class="terminal-body">${body}</div></div>`;
+}
+
+function filePreview(name,html){
+  return`<div class="file-preview"><div class="file-preview-bar"><span class="icon">📄</span>${esc(name)}</div><div class="file-preview-body">${html}</div></div>`;
+}
+
+function codeBlock(code){
+  const id="cb"+Math.random().toString(36).slice(2,8);
+  return`<div class="code-block-wrap"><div class="code-block" id="${id}">${esc(code)}</div><button class="copy-btn" onclick="copyCode('${id}',this)">📋 복사</button></div>`;
+}
+
+function esc(s){return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")}
+
+function copyCode(id,btn){
+  const text=document.getElementById(id).textContent;
+  navigator.clipboard.writeText(text).then(()=>{
+    btn.textContent="✅ 복사됨";btn.classList.add("copied");
+    setTimeout(()=>{btn.textContent="📋 복사";btn.classList.remove("copied")},1500);
+  });
+}
+
+function render(){
+  const s=STEPS[cur];
+  document.getElementById("leftHeader").textContent=`Step ${s.id} 미리보기`;
+  document.getElementById("leftBody").innerHTML=s.left();
+  document.getElementById("rightHeader").textContent=`Step ${s.id}: ${s.title}`;
+
+  const chk=loadCheck(s.id);
+  const memo=loadMemo(s.id);
+  document.getElementById("rightBody").innerHTML=s.right()+`
+<div class="completion-area">
+  <label class="check-label"><input type="checkbox" id="chk${s.id}" ${chk?"checked":""} onchange="saveCheck(${s.id},this.checked)"> 이 단계 완료</label>
+  <div class="memo-area">
+    <label>📝 메모</label>
+    <textarea id="memo${s.id}" oninput="saveMemo(${s.id},this.value)" placeholder="이 단계에서 메모할 내용을 적어주세요...">${esc(memo)}</textarea>
+  </div>
+</div>`;
+
+  document.getElementById("prevBtn").disabled=cur===0;
+  document.getElementById("nextBtn").disabled=cur===STEPS.length-1;
+  document.getElementById("pageCounter").textContent=`${cur+1} / ${STEPS.length}`;
+  document.getElementById("stepSelect").value=cur;
+  updateProgress();
+}
+
+function updateProgress(){
+  let done=0;
+  STEPS.forEach(s=>{if(loadCheck(s.id))done++});
+  const pct=Math.round(done/STEPS.length*100);
+  document.getElementById("progressFill").style.width=pct+"%";
+  document.getElementById("progressText").textContent=`${done} / ${STEPS.length} 완료`;
+}
+
+function go(d){
+  const n=cur+d;
+  if(n>=0&&n<STEPS.length){cur=n;render();window.scrollTo(0,0)}
+}
+
+function loadCheck(id){return localStorage.getItem("ccg_chk_"+id)==="1"}
+function saveCheck(id,v){localStorage.setItem("ccg_chk_"+id,v?"1":"0");updateProgress()}
+function loadMemo(id){return localStorage.getItem("ccg_memo_"+id)||""}
+function saveMemo(id,v){localStorage.setItem("ccg_memo_"+id,v)}
+
+function exportMemos(){
+  let txt="Claude Code 수강 메모\n생성일: "+new Date().toLocaleString("ko-KR")+"\n\n";
+  STEPS.forEach(s=>{
+    const m=loadMemo(s.id);
+    const c=loadCheck(s.id);
+    txt+=`=== Step ${s.id}: ${s.title} ===${c?" [완료]":""}\n${m||"(메모 없음)"}\n\n`;
+  });
+  const blob=new Blob([txt],{type:"text/plain;charset=utf-8"});
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(blob);
+  a.download="claude-code-수강메모.txt";
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+// init
+const sel=document.getElementById("stepSelect");
+STEPS.forEach((s,i)=>{
+  const o=document.createElement("option");
+  o.value=i;o.textContent=`Step ${s.id}: ${s.title}`;
+  sel.appendChild(o);
+});
+sel.addEventListener("change",e=>{cur=parseInt(e.target.value);render()});
+
+document.addEventListener("keydown",e=>{
+  if(e.target.tagName==="TEXTAREA"||e.target.tagName==="INPUT")return;
+  if(e.key==="ArrowLeft")go(-1);
+  if(e.key==="ArrowRight")go(1);
+});
+
+render();
+</script>
+</body>
+</html>
