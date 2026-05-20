@@ -93,7 +93,28 @@ const RANKS = [
 
 // ★ 이 배열을 Claude Code가 갈아끼웁니다 ★
 const capsules = [
-  // ★ 쉬는시간에 Claude Code가 이 배열을 실제 데이터로 교체합니다 ★
+  {name:"이강성", dept:"사옥관리팀", success:"안녕하세요!", message:"어려워요 ㅠㅠㅠ", color:"#ef4444"},
+  {name:"이득휴", dept:"사옥관리팀", success:"드디어 설치프로그램을 성공했습니다 ㅠㅠ", message:"원래 이렇게 진입하기까지 장벽이 높나요.......", color:"#f59e0b"},
+  {name:"유제우", dept:"인프라보안", success:"활용할 데이터는 많지만 표현할 방법이 없었는데 이젠 활용 방안이 무궁무진해보입니다.", message:"정말 좋은 경험이였습니다.", color:"#22c55e"},
+  {name:"정헌영", dept:"인프라보안팀", success:"설치 완료! 이제부터 시작", message:"덕분에 claude에 쉽게 접근하게 됐네요. 감사해요", color:"#3b82f6"},
+  {name:"김도현", dept:"파트너지원팀", success:"실무에서 한번 적용해보겠습니다!", message:"정유경 전임님 화이팅!!", color:"#8b5cf6"},
+  {name:"양아름솔", dept:"마케팅디자인", success:"정말 그동안은 반쪽만 사용하고 있었던거 같네요.", message:"생각보다 진입의 장벽이 높네요!", color:"#ec4899"},
+  {name:"한보원", dept:"인사기타", success:"설치는 어려웠지만 두레이 연결하여 엑셀 분석까지 진행하였습니다", message:"옆자리 동료님 같이 힘냈습니다 멋져요", color:"#06b6d4"},
+  {name:"이화주", dept:"BX팀", success:"말로만 듣던 '딸깍'이 무엇인지 체험할 수 있습니다.", message:"클로드 정말 막연했는데 덕분에 많이 알아갑니다. 감사합니다!", color:"#10b981"},
+  {name:"양지선", dept:"인사_기타", success:"첫 시작이 어려웠지만 신기하네요. 더 사용해봐야겠어요", message:"다들 파이팅 입니다 ^^", color:"#ef4444"},
+  {name:"이정현", dept:"구매팀", success:"익숙해지면 유용한 업무툴 일것 같아요", message:"긴시간 친절하게 설명해주셔서 고맙습니다.", color:"#f59e0b"},
+  {name:"김지원", dept:"구매팀", success:"claude code 열심히 활용해 보겠습니다. 감사합니다.", message:"강사님 너무 고생 많으셨습니다! 감사합니다.", color:"#22c55e"},
+  {name:"김은수", dept:"구매팀", success:"Claude에 대한 개념을 잡았습니다.", message:"비개발자들 대상으로 고생하셨습니다. 좀 어렵네요 ㅠㅠ", color:"#3b82f6"},
+  {name:"박초연", dept:"경영관리팀", success:"Claude로 예쁘게 html 파일 만들어보니 이제 엑셀PPT 필요없을거같아요!", message:"클로드와 친해지기 어려웠는데 강사님 덕분에 조금 가까워진거 같아요.", color:"#8b5cf6"},
+  {name:"한다희", dept:"사옥관리팀", success:"너무 어려워요 ㅠㅜㅜㅠㅜ", message:"열심히 공부 해 볼께요", color:"#ec4899"},
+  {name:"라선", dept:"복리후생운영팀", success:"너무 어렵지만.. 이해하는데 조금은 도움이 되었습니다.^^", message:"수고하셨습니다 ㅎㅎ", color:"#06b6d4"},
+  {name:"박근영", dept:"복리후생운영팀", success:"VS코드만 다뤄보고, 클로드 터미널 사용은 처음 해봤는데 조금 어렵지만 재밌었습니다. :)", message:"고생 많으셨습니다~~", color:"#10b981"},
+  {name:"양세은", dept:"복리후생운영팀", success:"Claude Code를 처음으로 직접 다뤄본 뜻 깊은 시간이었습니다.", message:"강사님 감사합니다:) 복운팀 사랑해요!", color:"#ef4444"},
+  {name:"윤봄이", dept:"P1아트파트", success:"Claud로 업무를 캘린더에 자동등록 하겠습니다!!! (성공하려 노력중...)", message:"오늘 너무 유익한강의 감사드립니다!!!!! 육아화이팅!!", color:"#f59e0b"},
+  {name:"김영은", dept:"총무팀", success:"생소한 것이 많아서 너무 어렵네요 ㅠㅠ 그래도 열심히 이것저것 해볼게요", message:"강사님 고생 많으십니다 ㅠㅠ 감사합니다!", color:"#22c55e"},
+  {name:"김덕찬", dept:"보안아키텍트팀", success:"이제 드디어 깔았습니다. 이녀석 얼마나 잘났는지 확인해보겠습니다. 인간은 망했나..?", message:"힘드네요... 옆사람과 똑같이 써도 각자 수행하는 방법이 다르니 힘드네요..ㅠㅠ", color:"#3b82f6"},
+  {name:"안준호", dept:"인사_기타", success:"잘 못따라 갔지만 너무 유용합니다ㅡㅜ", message:"잘 이끌어주셔서 감사합니다", color:"#8b5cf6"},
+  {name:"김미현", dept:"DHR팀", success:"문장 하나로 반복업무들을 처리할수 있어 좋았어요.", message:"배고프네요.", color:"#ec4899"},
 ];
 
 let remaining = [...capsules];

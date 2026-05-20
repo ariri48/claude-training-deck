@@ -240,6 +240,7 @@ python setup.py`)}
 <div class="desc"><ul>
 <li><code>setup.py</code>가 토큰 입력 → 의존성 설치 → MCP 등록 자동 처리</li>
 <li>Claude Code 재시작 후 동작 확인</li>
+<li style="color:#dc2626;font-weight:600;">⚠️ 토큰은 setup.py에서 입력합니다. Claude Code에 직접 입력 X</li>
 </ul></div>
 ${codeBlock("내 두레이 태스크 보여줘")}
 <div class="box box-success"><div class="box-title">✅ 성공</div>Dooray 태스크 목록이 표시되면 연동 완료</div>
@@ -347,11 +348,11 @@ left(){return `
   </div>
   <div style="margin-top:20px">
     <div class="pie-wrap">
-      <svg class="pie-svg" viewBox="0 0 32 32">
-        <circle r="16" cx="16" cy="16" fill="#4f46e5"/>
-        <circle r="16" cx="16" cy="16" fill="transparent" stroke="#818cf8" stroke-width="32" stroke-dasharray="40 60.5" stroke-dashoffset="25" transform="rotate(-90 16 16)"/>
-        <circle r="16" cx="16" cy="16" fill="transparent" stroke="#a5b4fc" stroke-width="32" stroke-dasharray="25 75.5" stroke-dashoffset="65" transform="rotate(-90 16 16)"/>
-        <circle r="16" cx="16" cy="16" fill="transparent" stroke="#c7d2fe" stroke-width="32" stroke-dasharray="15 85.5" stroke-dashoffset="90" transform="rotate(-90 16 16)"/>
+      <svg class="pie-svg" viewBox="0 0 42 42">
+        <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="#c7d2fe" stroke-width="6" stroke-dasharray="10 90" stroke-dashoffset="25"/>
+        <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="#a5b4fc" stroke-width="6" stroke-dasharray="15 85" stroke-dashoffset="15"/>
+        <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="#818cf8" stroke-width="6" stroke-dasharray="40 60" stroke-dashoffset="0"/>
+        <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="#4f46e5" stroke-width="6" stroke-dasharray="35 65" stroke-dashoffset="60"/>
       </svg>
       <div class="pie-legend">
         <div><span style="background:#4f46e5"></span>완료 (35%)</div>
