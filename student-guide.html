@@ -118,46 +118,28 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Noto Sans K
 
 <script>
 const STEPS=[
-{id:1,title:"Node.js 확인",
+{id:1,title:"Node.js 설치",
 left(){return terminal("Terminal",[
   {type:"prompt",text:"$ node -v"},
-  {type:"output",text:"v20.18.0"}
+  {type:"output",text:"v20.18.0"},
+  {type:"comment",text:"# ↑ 숫자가 나오면 이미 설치됨!"},
 ])},
 right(){return `
-<div class="section-title">Node.js 설치 확인</div>
-<div class="desc">터미널(명령 프롬프트)을 열고 아래 명령어를 입력하세요.</div>
+<div class="section-title">Node.js 설치 — 유일하게 직접 설치하는 것</div>
+<div class="desc">Claude Code는 Node.js 위에서 동작합니다. <strong>이것만 직접 설치하면 나머지는 Claude Code가 다 해줍니다.</strong></div>
 ${codeBlock("node -v")}
-<div class="box box-success"><div class="box-title">✅ 성공</div>v20.x.x 같은 버전 번호가 나오면 설치 완료</div>
-<div class="box box-fail"><div class="box-title">❌ 안 되면</div><a href="https://nodejs.org" target="_blank">https://nodejs.org</a> → LTS 다운로드 → 설치 → 터미널 재시작</div>
+<div class="box box-success"><div class="box-title">✅ 성공</div>숫자가 나오면 이미 설치됨 → Step 2로</div>
+<div class="box box-fail"><div class="box-title">❌ 안 되면</div>
+<ol>
+<li><a href="https://nodejs.org" target="_blank">nodejs.org</a> 접속</li>
+<li>화면 왼쪽의 <strong>초록색 LTS 버튼</strong> 클릭 (오른쪽 말고 왼쪽!)</li>
+<li>다운로드된 파일 실행 → 모든 옵션 기본값(Next) → Install → Finish</li>
+<li>터미널을 <strong>닫고 새로 열어서</strong> <code>node -v</code> 다시 확인</li>
+</ol>
+</div>
 `}},
 
-{id:2,title:"Git 확인",
-left(){return terminal("Terminal",[
-  {type:"prompt",text:"$ git --version"},
-  {type:"output",text:"git version 2.45.1.windows.1"}
-])},
-right(){return `
-<div class="section-title">Git 설치 확인</div>
-<div class="desc">아래 명령어로 Git이 설치되어 있는지 확인합니다.</div>
-${codeBlock("git --version")}
-<div class="box box-success"><div class="box-title">✅ 성공</div>git version 2.x.x 숫자가 나오면 OK</div>
-<div class="box box-fail"><div class="box-title">❌ 안 되면</div>Windows: <a href="https://git-scm.com" target="_blank">https://git-scm.com</a> 다운로드 설치<br>Mac: 터미널에서 <code>git --version</code> 입력 시 자동 안내 팝업</div>
-`}},
-
-{id:3,title:"Python 확인",
-left(){return terminal("Terminal",[
-  {type:"prompt",text:"$ python --version"},
-  {type:"output",text:"Python 3.12.4"}
-])},
-right(){return `
-<div class="section-title">Python 설치 확인</div>
-<div class="desc">Python 3.10 이상이 필요합니다.</div>
-${codeBlock("python --version")}
-<div class="box box-success"><div class="box-title">✅ 성공</div>Python 3.10 이상이면 OK</div>
-<div class="box box-fail"><div class="box-title">❌ 안 되면</div><a href="https://python.org" target="_blank">https://python.org</a> → Downloads → 설치 시 <strong>"Add to PATH" 체크 필수</strong></div>
-`}},
-
-{id:4,title:"Claude Code 설치",
+{id:2,title:"Claude Code 설치",
 left(){return terminal("Terminal",[
   {type:"prompt",text:"$ npm install -g @anthropic-ai/claude-code"},
   {type:"output",text:"added 1 package in 12s"},
@@ -166,7 +148,7 @@ left(){return terminal("Terminal",[
 ])},
 right(){return `
 <div class="section-title">Claude Code 설치</div>
-<div class="desc">npm으로 Claude Code를 전역 설치합니다.</div>
+<div class="desc">터미널에 아래 명령어를 복사해서 붙여넣으세요.</div>
 ${codeBlock("npm install -g @anthropic-ai/claude-code")}
 <div class="desc">설치 완료 후 버전 확인:</div>
 ${codeBlock("claude --version")}
@@ -174,7 +156,7 @@ ${codeBlock("claude --version")}
 <div class="box box-fail"><div class="box-title">❌ 안 되면</div>Node.js가 설치되어 있는지 다시 확인 (Step 1)<br>권한 오류 시 관리자 권한으로 터미널 실행</div>
 `}},
 
-{id:5,title:"첫 로그인",
+{id:3,title:"첫 로그인",
 left(){return terminal("Terminal",[
   {type:"prompt",text:"$ claude"},
   {type:"output",text:"Welcome to Claude Code!"},
@@ -196,7 +178,7 @@ ${codeBlock("claude")}
 <div class="box box-fail"><div class="box-title">❌ 안 되면</div>브라우저 팝업 차단 확인<br>VPN 연결 시 해제 후 재시도</div>
 `}},
 
-{id:6,title:"첫 대화",
+{id:4,title:"첫 대화",
 left(){return terminal("Claude Code",[
   {type:"prompt",text:"> 안녕하세요"},
   {type:"output",text:""},
@@ -204,18 +186,52 @@ left(){return terminal("Claude Code",[
   {type:"output",text:"터미널에서 코딩, 파일 작업, 시스템 명령 등을"},
   {type:"output",text:"도와드릴 수 있습니다."},
   {type:"output",text:"무엇을 도와드릴까요?"},
-  {type:"prompt",text:""},
-  {type:"prompt",text:"> /clear"},
-  {type:"comment",text:"# 대화 초기화 완료"},
 ])},
 right(){return `
 <div class="section-title">첫 대화 해보기</div>
-<div class="desc">"안녕하세요"를 입력해 Claude가 응답하는지 확인합니다.</div>
 ${codeBlock("안녕하세요")}
-<div class="desc">대화 초기화:</div>
-${codeBlock("/clear")}
-<div class="box box-success"><div class="box-title">✅ 성공</div>Claude의 응답이 오면 정상 작동!</div>
-<div class="box box-fail"><div class="box-title">❌ 안 되면</div>인터넷 연결 확인<br><code>claude</code>를 다시 실행해 재로그인</div>
+<div class="box box-success"><div class="box-title">✅ 성공</div>Claude의 응답이 오면 정상 작동! 이제부터 나머지 설치는 Claude에게 시키면 됩니다.</div>
+<div class="box box-fail"><div class="box-title">❌ 안 되면</div>인터넷 연결 확인, <code>claude</code>를 다시 실행해 재로그인</div>
+`}},
+
+{id:5,title:"Git 설치 (Claude에게 시키기)",
+left(){return terminal("Claude Code",[
+  {type:"prompt",text:"> Git 설치해줘"},
+  {type:"output",text:"Git이 설치되어 있는지 확인하겠습니다..."},
+  {type:"comment",text:"# Claude가 자동으로 환경 감지 후 설치"},
+  {type:"output",text:"✓ Git 설치 완료 (git version 2.45.1)"},
+])},
+right(){return `
+<div class="section-title">Git 설치 — Claude에게 시키기</div>
+<div class="desc">Claude Code 안에서 아래처럼 말하면 됩니다. 직접 설치할 필요 없어요!</div>
+${codeBlock("Git 설치해줘")}
+<div class="desc"><ul>
+<li>Claude가 자동으로 OS 감지 → 설치 명령 실행</li>
+<li>이미 설치되어 있으면 "이미 설치됨"이라고 알려줌</li>
+<li>권한 묻는 팝업이 나오면 Yes 선택</li>
+</ul></div>
+<div class="box box-success"><div class="box-title">✅ 성공</div>Claude가 'Git 설치 완료' 또는 '이미 설치됨'이라고 하면 OK</div>
+<div class="box box-fail"><div class="box-title">❌ 안 되면</div>'Git 설치가 안 되는데 도와줘'라고 다시 요청 — Claude가 다른 방법을 안내합니다</div>
+`}},
+
+{id:6,title:"Python 설치 (Claude에게 시키기)",
+left(){return terminal("Claude Code",[
+  {type:"prompt",text:"> Python 설치해줘"},
+  {type:"output",text:"Python 설치 여부를 확인합니다..."},
+  {type:"comment",text:"# Claude가 자동으로 환경 감지 후 설치"},
+  {type:"output",text:"✓ Python 3.12.4 설치 완료"},
+])},
+right(){return `
+<div class="section-title">Python 설치 — Claude에게 시키기</div>
+<div class="desc">이것도 Claude Code 안에서 한마디면 끝!</div>
+${codeBlock("Python 설치해줘")}
+<div class="desc"><ul>
+<li>Claude가 OS에 맞는 설치 방법 자동 선택</li>
+<li>PATH 설정까지 알아서 처리</li>
+<li>권한 묻는 팝업이 나오면 Yes 선택</li>
+</ul></div>
+<div class="box box-success"><div class="box-title">✅ 성공</div>'Python 설치 완료' 또는 '이미 설치됨'이면 OK</div>
+<div class="box box-fail"><div class="box-title">❌ 안 되면</div>'Python이 안 깔리는데 도와줘'라고 다시 요청</div>
 `}},
 
 {id:7,title:"Dooray MCP 설치",
