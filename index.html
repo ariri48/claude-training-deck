@@ -146,21 +146,7 @@
 </style>
 </head>
 <body class="text-slate-900">
-<script>
-(function(){
-  var expire = new Date('2026-05-28T00:00:00+09:00');
-  if(new Date() > expire){
-    document.documentElement.innerHTML = '<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>비공개</title></head>'
-      + '<body style="margin:0;height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#4f46e5,#7c3aed);font-family:Pretendard,system-ui,sans-serif;">'
-      + '<div style="text-align:center;color:#fff;padding:40px;">'
-      + '<div style="font-size:64px;margin-bottom:24px;">🦋</div>'
-      + '<h1 style="font-size:36px;font-weight:800;margin:0;">현재 공개 기간이 아닙니다</h1>'
-      + '<p style="font-size:20px;margin-top:16px;color:#e0e7ff;">다음 교육에서 만나요!</p>'
-      + '</div></body>';
-    throw 'expired';
-  }
-})();
-</script>
+<!-- 공개 기간 제한 해제 -->
 
 <!-- TOP NAV -->
 <nav class="nav">
